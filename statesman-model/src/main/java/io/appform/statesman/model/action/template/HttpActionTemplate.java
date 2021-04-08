@@ -1,5 +1,6 @@
 package io.appform.statesman.model.action.template;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.appform.statesman.model.action.ActionType;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,10 @@ public class HttpActionTemplate extends ActionTemplate {
 
     private String responseTranslator;
 
+    private boolean noop;
+
+    private JsonNode noopResponse;
+
     public HttpActionTemplate() {
         super(ActionType.HTTP);
     }
@@ -36,13 +41,17 @@ public class HttpActionTemplate extends ActionTemplate {
                               String url,
                               String payload,
                               String headers,
-                              String responseTranslator) {
+                              String responseTranslator,
+                              boolean noop,
+                              JsonNode noopResponse) {
         super(ActionType.HTTP, templateId, name, active);
         this.method = method;
         this.url = url;
         this.payload = payload;
         this.headers = headers;
         this.responseTranslator = responseTranslator;
+        this.noop = noop;
+        this.noopResponse = noopResponse;
     }
 
     @Override

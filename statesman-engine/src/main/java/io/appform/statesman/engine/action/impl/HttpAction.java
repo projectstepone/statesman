@@ -57,9 +57,19 @@ public class HttpAction extends BaseAction<HttpActionTemplate> {
 
     @Override
     public JsonNode execute(HttpActionTemplate actionTemplate, Workflow workflow) {
+
+        log.debug("Http Action triggered with Template: {} and Workflow: {}",
+            actionTemplate, workflow);
+
         String responseTranslator = actionTemplate.getResponseTranslator();
         HttpActionData httpActionData = transformPayload(workflow, actionTemplate);
         log.debug("Action call data: {}", httpActionData);
+
+        if (actionTemplate.isNoop()) {
+            log.warn("Returning noop response as NoOp is configured in template");
+            return actionTemplate.getNoopResponse();
+        }
+
         JsonNode httpResponse = handle(httpActionData);
         if (httpResponse != null && !Strings.isNullOrEmpty(responseTranslator)) {
             return toJsonNode(handleBarsService.transform(responseTranslator, httpResponse));

@@ -34,9 +34,17 @@ public class TranslatorAction extends BaseAction<TranslatorActionTemplate> {
 
     @Override
     protected JsonNode execute(TranslatorActionTemplate actionTemplate, Workflow workflow) {
+
+        log.debug("Translate Action triggered with Template: {} and Workflow: {}",
+            actionTemplate, workflow);
+
         String translator = actionTemplate.getTranslator();
         JsonNode workflowNode = mapper.valueToTree(workflow);
-        return toJsonNode(handleBarsService.transform(translator, workflowNode));
+        JsonNode response = toJsonNode(handleBarsService.transform(translator, workflowNode));
+
+        log.debug("Translation output: {}", response);
+
+        return response;
     }
 
     @Override
