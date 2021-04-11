@@ -20,6 +20,7 @@ services:
     ports:
     - "8080:8080"
     - "8081:8081"
+    # - "8084:8084"
     volumes:
     - /var/log/statesman-server
     environment:
@@ -29,6 +30,7 @@ services:
       DB_PASSWORD: password
       FOXTROT_ENDPOINT: https://localhost:17000
       FOXTROT_TOKEN: INV_TOKEN_
+      # JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8084
     depends_on:
       - mariadb_1
       - mariadb_2
