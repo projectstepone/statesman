@@ -18,7 +18,7 @@ else
     fi
 fi
 
-EXEC_CMD="java -Ddb.shards=${SHARDS-2} -Dfile.encoding=utf-8 -XX:+${GC_ALGO-UseG1GC} -Xms${JAVA_PROCESS_MIN_HEAP-1g} -Xmx${JAVA_PROCESS_MAX_HEAP-1g} ${JAVA_DEBUG_OPTS} ${JAVA_OPTS} -jar server.jar server ${STATESMAN_CONFIG_FILE}"
+EXEC_CMD="java -Ddb.shards=${SHARDS-2} -Dfile.encoding=utf-8 -XX:+${GC_ALGO-UseG1GC} -Xms${JAVA_PROCESS_MIN_HEAP-1g} -Xmx${JAVA_PROCESS_MAX_HEAP-1g} ${JAVA_OPTS} -jar server.jar server ${STATESMAN_CONFIG_FILE}"
 
 echo "Number of database shards: ${SHARDS}"
 
