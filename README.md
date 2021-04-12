@@ -22,7 +22,7 @@ docker-compose build
 docker-compose up 
 ```
 
-Incase you have ports conflicting (8080, 8081, 8082, 8083 will be used by this app), ports are mentioned in the following files:
+Incase you have ports conflicting (8080, 8081, 8090 will be used by this app), ports are mentioned in the following files:
 ```
 $CODE/statesman-server/Dockerfile 
 $CODE/statesman-server/config/local.yml
@@ -32,16 +32,16 @@ $CODE/statesman-server/docker-compose.yml
 To debug the statesman service running via Docker in IntelliJ, follow below mentioned steps:
 ```shell
 # Uncomment below mentioned line from $CODE/statesman-server/Dockerfile
-EXPOSE 8084
+EXPOSE 8090
 
 # Uncomment below mentioned lines from $CODE/statesman-server/docker-compose.yml
-- "8084:8084"
-- JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8084
+- "8090:8090"
+- JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8090
 
 # Open Run Configurations in IntelliJ
 1. Add Remote JVM Debug config
 2. Add host: localhost 
-3. Add port: 8084
+3. Add port: 8090
 4. Select statesman-server module for classpath selection 
 5. Save the configuration
 6. Bring up Docker Container via CLI
