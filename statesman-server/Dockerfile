@@ -4,7 +4,7 @@ RUN apt-get clean && apt-get update && apt-get install -y --no-install-recommend
 
 EXPOSE 8080
 EXPOSE 8081
-EXPOSE 8090
+# EXPOSE 8090
 
 VOLUME /var/log/statesman-server
 
