@@ -31,13 +31,6 @@ $CODE/statesman-server/docker-compose.yml
 
 To debug the statesman service running via Docker in IntelliJ, follow below mentioned steps:
 ```shell
-# Uncomment below mentioned line from $CODE/statesman-server/Dockerfile
-EXPOSE 8090
-
-# Uncomment below mentioned lines from $CODE/statesman-server/docker-compose.yml
-- "8090:8090"
-- JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8090
-
 # Open Run Configurations in IntelliJ
 1. Add Remote JVM Debug config
 2. Add host: localhost 
