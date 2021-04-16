@@ -859,5 +859,36 @@ public class HandleBarsServiceTest {
             Assert.assertEquals("Non existant","b", value);
         }
     }
-    
+
+    @Test
+    public void testDateFormat() {
+
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+                .set("dataObject", mapper.createObjectNode()
+                        .set("data", mapper.createObjectNode()
+                                .set("endTime", new LongNode(1618770600000L))));
+
+        final String transformed = hb
+                .transform("{{dateFormat dataObject.data.endTime 'MM/dd/yyyy'}}", node);
+
+        Assert.assertEquals("04/19/2021", transformed);
+    }
+
+    @Test
+    public void testToEpochAndAddDays() {
+
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+                .set("date", new TextNode("15 Apr, 2021"));
+
+        final String transformed = hb
+                .transform("{{add 864000000 (toEpochTime date 'dd MMM, yyyy')}}", node);
+
+        Assert.assertEquals("1619289000000", transformed);
+    }
 }
