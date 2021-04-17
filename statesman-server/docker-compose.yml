@@ -2,6 +2,8 @@ version: '2'
 services:
    mariadb_1:
     image: mariadb:10.0.38
+    ports:
+    - "34407:3306"
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: statesman_db_1
@@ -9,6 +11,8 @@ services:
       MYSQL_PASSWORD: password
    mariadb_2:
     image: mariadb:10.0.38
+    ports:
+    - "35508:3306"
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: statesman_db_2

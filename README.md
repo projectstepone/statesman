@@ -22,7 +22,7 @@ docker-compose build
 docker-compose up 
 ```
 
-Incase you have ports conflicting (8080, 8081, 8090 will be used by this app), ports are mentioned in the following files:
+Incase you have ports conflicting (8080, 8081, 8090, 34407, 35508 will be used by this app), ports are mentioned in the following files:
 ```
 $CODE/statesman-server/Dockerfile 
 $CODE/statesman-server/config/local.yml
