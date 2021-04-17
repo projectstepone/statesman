@@ -2,7 +2,9 @@ package io.appform.statesman.engine.handlebars;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.jknack.handlebars.JsonNodeValueResolver;
 import com.google.common.base.Strings;
 import io.dropwizard.jackson.Jackson;
@@ -859,5 +861,36 @@ public class HandleBarsServiceTest {
             Assert.assertEquals("Non existant","b", value);
         }
     }
-    
+
+    @Test
+    public void testDateFormat() {
+
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+                .set("dataObject", mapper.createObjectNode()
+                        .set("data", mapper.createObjectNode()
+                                .set("endTime", new LongNode(1618770600000L))));
+
+        final String transformed = hb
+                .transform("{{dateFormat dataObject.data.endTime 'MM/dd/yyyy'}}", node);
+
+        Assert.assertEquals("04/19/2021", transformed);
+    }
+
+    @Test
+    public void testToEpochAndAddDays() {
+
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+                .set("date", new TextNode("15 Apr, 2021"));
+
+        final String transformed = hb
+                .transform("{{add 864000000 (toEpochTime date 'dd MMM, yyyy')}}", node);
+
+        Assert.assertEquals("1619289000000", transformed);
+    }
 }
