@@ -1,0 +1,366 @@
+[
+  {
+    "id": "WA_SMS_SENT_TO_LANGUAGE_SELECTION",
+    "type": "EVALUATED",
+    "fromState": "SMS_SENT",
+    "active": true,
+    "rule": "path.exists(\"$.update.source\") == true && \"$.update.source\" == \"whatsapp\"",
+    "toState": {
+      "name": "WA_LANGUAGE_SELECTION",
+      "terminal": false
+    },
+    "action": "WA_LANGUAGE_SELECTION"
+  },
+  {
+    "id": "WA_LANGUAGE_SELECTION_TO_CHECK_COVID",
+    "type": "EVALUATED",
+    "fromState": "WA_LANGUAGE_SELECTION",
+    "active": true,
+    "rule": "\"$.update.input\" >= 1 && \"$.update.input\" <= 7 && path.exists(\"$.update.questionId\") == true && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_CHECK_COVID",
+      "terminal": false
+    },
+    "action": "WA_SAVE_LANGUAGE_AND_SEND_COVID_STATUS_MSG"
+  },
+  {
+    "id": "WA_LANGUAGE_SELECTION_AGAIN",
+    "type": "EVALUATED",
+    "fromState": "WA_LANGUAGE_SELECTION",
+    "active": true,
+    "rule": "path.exists(\"$.update.questionId\") == true && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_LANGUAGE_SELECTION",
+      "terminal": false
+    },
+    "action": "WA_SEND_LANGUAGE_SELECTION_MSG"
+  },
+  {
+    "id": "WA_CHECK_COVID_TO_ASK_AGE",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_COVID",
+    "active": true,
+    "rule": "\"$.update.input\" >= 1 && \"$.update.input\" <= 3 && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_SAVE_COVID_STATUS",
+      "terminal": false
+    },
+    "action": "WA_SAVE_COVID_STATE"
+  },
+  {
+    "id": "WA_SAVE_COVID_TO_ABORT",
+    "type": "EVALUATED",
+    "fromState": "WA_SAVE_COVID_STATUS",
+    "active": true,
+    "rule": "\"$.update.input\" == 3",
+    "toState": {
+      "name": "SMS_SENT",
+      "terminal": false
+    },
+    "action": "WA_ON_COVID_NEGATIVE"
+  },
+  {
+    "id": "WA_CHECK_COVID_TO_RESET",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_COVID",
+    "active": true,
+    "rule": "\"$.update.input\" == 9 && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "SMS_SENT",
+      "terminal": false
+    },
+    "action": "WA_RESTART_FLOW"
+  },
+  {
+    "id": "WA_CHECK_COVID_REPEAT",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_COVID",
+    "active": true,
+    "rule": "\"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_CHECK_COVID",
+      "terminal": false
+    },
+    "action": "WA_ASK_COVID_STATUS"
+  },
+  {
+    "id": "WA_SAVE_COVID_TO_ASK_AGE",
+    "type": "DEFAULT",
+    "fromState": "WA_SAVE_COVID_STATUS",
+    "active": true,
+    "toState": {
+      "name": "WA_ASK_AGE",
+      "terminal": false
+    },
+    "action": "WA_ASK_AGE"
+  },
+  {
+    "id": "WA_ASK_AGE_TO_SAVE_AGE",
+    "type": "EVALUATED",
+    "fromState": "WA_ASK_AGE",
+    "active": true,
+    "rule": "\"$.update.input\" >= 1 && \"$.update.input\" <= 150 && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_SAVE_AGE",
+      "terminal": false
+    },
+    "action": "WA_SAVE_AGE"
+  },
+  {
+    "id": "WA_ASK_AGE_AGAIN",
+    "type": "EVALUATED",
+    "fromState": "WA_ASK_AGE",
+    "active": true,
+    "rule": "\"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_ASK_AGE",
+      "terminal": false
+    },
+    "action": "WA_ASK_AGE_MSG"
+  },
+  {
+    "id": "WA_SAVE_AGE_TO_ASK_COMORBIDITIES",
+    "type": "DEFAULT",
+    "fromState": "WA_SAVE_AGE",
+    "active": true,
+    "toState": {
+      "name": "WA_CHECK_COMORBIDITIES",
+      "terminal": false
+    },
+    "action": "WA_CHECK_COMORBIDITIES"
+  },
+  {
+    "id": "WA_ASK_COMORBIDITIES_TO_SAVE",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_COMORBIDITIES",
+    "active": true,
+    "rule": "\"$.update.input\" >= 1 && \"$.update.input\" <= 2 && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_SAVE_COMORBIDITIES",
+      "terminal": false
+    },
+    "action": "WA_SAVE_COMORBIDITIES"
+  },
+  {
+    "id": "WA_ASK_COMORBIDITIES_AGAIN",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_COMORBIDITIES",
+    "rule": "\"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "active": true,
+    "toState": {
+      "name": "WA_CHECK_COMORBIDITIES",
+      "terminal": false
+    },
+    "action": "WA_CHECK_COMORBIDITIES"
+  },
+  {
+    "id": "WA_SAVE_COMORBIDITIES_TO_ASK_FEVER",
+    "type": "DEFAULT",
+    "fromState": "WA_SAVE_COMORBIDITIES",
+    "active": true,
+    "toState": {
+      "name": "WA_CHECK_FEVER",
+      "terminal": false
+    },
+    "action": "WA_CHECK_FEVER"
+  },
+  {
+    "id": "WA_ASK_FEVER_TO_SAVE",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_FEVER",
+    "active": true,
+    "rule": "\"$.update.input\" >= 1 && \"$.update.input\" <= 2 && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_SAVE_FEVER",
+      "terminal": false
+    },
+    "action": "WA_SAVE_FEVER"
+  },
+  {
+    "id": "WA_ASK_FEVER_AGAIN",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_FEVER",
+    "active": true,
+    "rule": "\"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_CHECK_FEVER",
+      "terminal": false
+    },
+    "action": "WA_CHECK_FEVER"
+  },
+  {
+    "id": "WA_SAVE_FEVER_TO_ASK_MOTIONS",
+    "type": "DEFAULT",
+    "fromState": "WA_SAVE_FEVER",
+    "active": true,
+    "toState": {
+      "name": "WA_CHECK_MOTIONS",
+      "terminal": false
+    },
+    "action": "WA_CHECK_MOTIONS"
+  },
+  {
+    "id": "WA_ASK_MOTIONS_TO_SAVE",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_MOTIONS",
+    "active": true,
+    "rule": "\"$.update.input\" >= 1 && \"$.update.input\" <= 2 && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_SAVE_MOTIONS",
+      "terminal": false
+    },
+    "action": "WA_SAVE_MOTIONS"
+  },
+  {
+    "id": "WA_ASK_MOTIONS_AGAIN",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_MOTIONS",
+    "active": true,
+    "rule": "\"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_CHECK_MOTIONS",
+      "terminal": false
+    },
+    "action": "WA_CHECK_MOTIONS"
+  },
+  {
+    "id": "WA_SAVE_MOTIONS_TO_ASK_BREATH",
+    "type": "DEFAULT",
+    "fromState": "WA_SAVE_MOTIONS",
+    "active": true,
+    "toState": {
+      "name": "WA_CHECK_BREATH",
+      "terminal": false
+    },
+    "action": "WA_CHECK_BREATH"
+  },
+  {
+    "id": "WA_ASK_BREATH_TO_SAVE",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_BREATH",
+    "active": true,
+    "rule": "\"$.update.input\" >= 1 && \"$.update.input\" <= 2 && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_SAVE_BREATH",
+      "terminal": false
+    },
+    "action": "WA_SAVE_BREATH"
+  },
+  {
+    "id": "WA_ASK_BREATH_AGAIN",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_BREATH",
+    "active": true,
+    "rule": "\"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_CHECK_BREATH",
+      "terminal": false
+    },
+    "action": "WA_CHECK_BREATH"
+  },
+  {
+    "id": "WA_SAVE_BREATH_TO_ASK_OXYGEN",
+    "type": "DEFAULT",
+    "fromState": "WA_SAVE_BREATH",
+    "active": true,
+    "toState": {
+      "name": "WA_CHECK_OXYGEN",
+      "terminal": false
+    },
+    "action": "WA_CHECK_OXYGEN"
+  },
+  {
+    "id": "WA_ASK_OXYGEN_TO_SAVE",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_OXYGEN",
+    "active": true,
+    "rule": "\"$.update.input\" >= 1 && \"$.update.input\" <= 3 && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_COMPUTE_SEVERITY",
+      "terminal": false
+    },
+    "action": "WA_SAVE_OXYGEN"
+  },
+  {
+    "id": "WA_ASK_OXYGEN_AGAIN",
+    "type": "EVALUATED",
+    "fromState": "WA_CHECK_OXYGEN",
+    "rule": "\"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "active": true,
+    "toState": {
+      "name": "WA_CHECK_OXYGEN",
+      "terminal": false
+    },
+    "action": "WA_CHECK_OXYGEN"
+  },
+  {
+    "id": "WA_COMPUTE_SEVERITY_TO_TRIAGE_SEVERE",
+    "type": "EVALUATED",
+    "fromState": "WA_COMPUTE_SEVERITY",
+    "active": true,
+    "rule": "\"$.data.oxygen\" == 3",
+    "toState": {
+      "name": "WA_FINAL_RESPONSE_SENT",
+      "terminal": false
+    },
+    "action": "WA_PATIENT_SEVERE_CONDITION"
+  },
+  {
+    "id": "WA_COMPUTE_SEVERITY_TO_TRIAGE_MODERATE",
+    "type": "EVALUATED",
+    "fromState": "WA_COMPUTE_SEVERITY",
+    "active": true,
+    "rule": "\"$.data.oxygen\" == 2 && (\"$.data.comorbidityStatus\" == 1 || \"$.data.age\" > 60)",
+    "toState": {
+      "name": "WA_FINAL_RESPONSE_SENT",
+      "terminal": false
+    },
+    "action": "WA_PATIENT_MODERATE_CONDITION"
+  },
+  {
+    "id": "WA_COMPUTE_SEVERITY_TO_TRIAGE_MILD",
+    "type": "DEFAULT",
+    "fromState": "WA_COMPUTE_SEVERITY",
+    "active": true,
+    "toState": {
+      "name": "WA_FINAL_RESPONSE_SENT",
+      "terminal": false
+    },
+    "action": "WA_PATIENT_MILD_CONDITION"
+  },
+  {
+    "id": "WA_FINAL_RESPONSE_SENT_TO_RAISE_TICKET",
+    "type": "EVALUATED",
+    "fromState": "WA_FINAL_RESPONSE_SENT",
+    "active": true,
+    "rule": "\"$.update.input\" == 1 && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "SMS_SENT",
+      "terminal": false
+    },
+    "action": "WA_RAISE_FRESHDESK_TICKET_AND_SEND_MSG"
+  },
+  {
+    "id": "WA_FINAL_RESPONSE_SENT_TO_ABORT",
+    "type": "EVALUATED",
+    "fromState": "WA_FINAL_RESPONSE_SENT",
+    "active": true,
+    "rule": "\"$.update.input\" == 2 && \"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "SMS_SENT",
+      "terminal": false
+    },
+    "action": "WA_THANK_YOU_MSG"
+  },
+  {
+    "id": "WA_FINAL_RESPONSE_SENT_REPEAT",
+    "type": "EVALUATED",
+    "fromState": "WA_FINAL_RESPONSE_SENT",
+    "active": true,
+    "rule": "\"$.update.questionId\" == \"$.data.whatsappObject.questionId\"",
+    "toState": {
+      "name": "WA_COMPUTE_SEVERITY",
+      "terminal": false
+    }
+  }
+]

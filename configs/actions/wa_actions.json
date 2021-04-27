@@ -1,0 +1,350 @@
+[
+  {
+    "templateId": "WA_LANGUAGE_SELECTION",
+    "name": "Send language selection msg",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "WA_INITIATE_CONVERSATION",
+      "WA_SEND_LANGUAGE_SELECTION_MSG"
+    ]
+  },
+  {
+    "templateId": "WA_INITIATE_CONVERSATION",
+    "name": "Set whatsapp object",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"whatsappObject\": {\"questionId\" : \"language\"} }"
+  },
+  {
+    "templateId": "WA_SEND_LANGUAGE_SELECTION_MSG",
+    "name": "Send language selection msg",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_SAVE_LANGUAGE_AND_SEND_COVID_STATUS_MSG",
+    "name": "Save language and ask covid status",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "WA_SAVE_LANGUAGE",
+      "WA_ASK_COVID_STATUS"
+    ]
+  },
+  {
+    "templateId": "WA_ASK_COVID_STATUS",
+    "name": "Ask covid status",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_SAVE_LANGUAGE",
+    "name": "Save user preferred language",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{\"language\" : \"{{dataObject.data.input}}\", \"whatsappObject\": {\"questionId\": \"covidStatus\"} }"
+  },
+  {
+    "templateId": "WA_ON_COVID_NEGATIVE",
+    "name": "Mark Covid Negative",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "WA_RESET_QUESTION",
+      "WA_SEND_COVID_NEGATIVE_MSG"
+    ]
+  },
+  {
+    "templateId": "WA_SEND_COVID_NEGATIVE_MSG",
+    "name": "Send covid Negative msg",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_RESET_QUESTION",
+    "name": "Reset user questionId",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"whatsappObject\": {\"questionId\": \"\"} }"
+  },
+  {
+    "templateId": "WA_RESTART_FLOW",
+    "name": "Reset Watsapp flow",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "WA_RESET_DATA",
+      "WA_RESET_MESSAGE"
+    ]
+  },
+  {
+    "templateId": "WA_RESET_DATA",
+    "name": "Reset Whatsapp Data",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"whatsappObject\" : \"{}\" }"
+  },
+  {
+    "templateId": "WA_RESET_MESSAGE",
+    "name": "Send reset flow message",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_SAVE_COVID_STATE",
+    "name": "Save Covid State",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"covidState\" : \"{{dataObject.data.input}}\"}"
+  },
+  {
+    "templateId": "WA_ASK_AGE",
+    "name": "Ask Age",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "WA_INITIATE_TRIAGE",
+      "WA_ASK_AGE_MSG"
+    ]
+  },
+  {
+    "templateId": "WA_INITIATE_TRIAGE",
+    "name": "Initiate Whatsapp Triage",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"whatsappObject\": {\"questionId\" : \"age\"} }"
+  },
+  {
+    "templateId": "WA_ASK_AGE_MSG",
+    "name": "Ask user age",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_SAVE_AGE",
+    "name": "Save Patient Age",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"whatsappObject\": {\"questionId\": \"comorbid\"}, \"age\" : \"{{dataObject.data.input}}\" }"
+  },
+  {
+    "templateId": "WA_CHECK_COMORBIDITIES",
+    "name": "Check comorbidities",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_SAVE_COMORBIDITIES",
+    "name": "Save Patient Comorbidity details",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"whatsappObject\": {\"questionId\": \"fever\"}, \"comorbidityStatus\" : \"{{dataObject.data.input}}\" }"
+  },
+  {
+    "templateId": "WA_CHECK_FEVER",
+    "name": "Check fever",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_SAVE_FEVER",
+    "name": "Save Patient Fever details",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"whatsappObject\": {\"questionId\": \"motions\"}, \"fever\" : \"{{dataObject.data.input}}\" }"
+  },
+  {
+    "templateId": "WA_CHECK_MOTIONS",
+    "name": "Check motions",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_SAVE_MOTIONS",
+    "name": "Save Patient Motions details",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"whatsappObject\": {\"questionId\": \"breath\"}, \"motions\" : \"{{dataObject.data.input}}\" }"
+  },
+  {
+    "templateId": "WA_CHECK_BREATH",
+    "name": "Check motions",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_SAVE_BREATH",
+    "name": "Save Patient Breath details",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"whatsappObject\": {\"questionId\": \"oxygen\"}, \"breath\" : \"{{dataObject.data.input}}\" }"
+  },
+  {
+    "templateId": "WA_CHECK_OXYGEN",
+    "name": "Check motions",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_SAVE_OXYGEN",
+    "name": "Save Patient Oxygen details",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"oxygen\" : \"{{dataObject.data.input}}\" }"
+  },
+  {
+    "templateId": "WA_PATIENT_SEVERE_CONDITION",
+    "name": "Patient diagnosis severe",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "WA_SAVE_SEVERITY_SEVERE",
+      "WA_SEND_SEVERITY_SEVERE_MSG"
+    ]
+  },
+  {
+    "templateId": "WA_SAVE_SEVERITY_SEVERE",
+    "name": "Patient diagnosis severe",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"severity\" : 3, \"whatsappObject\": {\"questionId\": \"followUp\"} }"
+  },
+  {
+    "templateId": "WA_SEND_SEVERITY_SEVERE_MSG",
+    "name": "Patient diagnosis severe",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_PATIENT_MODERATE_CONDITION",
+    "name": "Patient diagnosis moderate",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "WA_SAVE_SEVERITY_MODERATE",
+      "WA_SEND_SEVERITY_MODERATE_MSG"
+    ]
+  },
+  {
+    "templateId": "WA_SAVE_SEVERITY_MODERATE",
+    "name": "Patient diagnosis moderate",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"severity\" : 2, \"whatsappObject\": {\"questionId\": \"followUp\"} }"
+  },
+  {
+    "templateId": "WA_SEND_SEVERITY_MODERATE_MSG",
+    "name": "Patient diagnosis moderate",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_PATIENT_MILD_CONDITION",
+    "name": "Patient diagnosis mild",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "WA_SAVE_SEVERITY_MILD",
+      "WA_SEND_SEVERITY_MILD_MSG"
+    ]
+  },
+  {
+    "templateId": "WA_SAVE_SEVERITY_MILD",
+    "name": "Patient diagnosis mild",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"severity\" : 1, \"whatsappObject\": {\"questionId\": \"followUp\"} }"
+  },
+  {
+    "templateId": "WA_SEND_SEVERITY_MILD_MSG",
+    "name": "Patient diagnosis mild",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_RAISE_FRESHDESK_TICKET_AND_SEND_MSG",
+    "name": "Raise Freshdesk Ticket and send msg",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "WA_SAVE_FRESHDESK_REQUEST",
+      "WA_RAISE_FRESHDESK_TICKET",
+      "WA_SEND_DOCTOR_CALL_MSG"
+    ]
+  },
+  {
+    "templateId": "WA_SAVE_FRESHDESK_REQUEST",
+    "name": "Save doctor connect",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"doctor\" : 1, \"whatsappObject\": {\"questionId\": \"\"} }"
+  },
+  {
+    "templateId": "WA_RAISE_FRESHDESK_TICKET",
+    "name": "Raise freshdesk ticket",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_SEND_DOCTOR_CALL_MSG",
+    "name": "Send doctor call back msg",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "WA_THANK_YOU_MSG",
+    "name": "Send Thank you msg",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "WA_CLOSE_TICKET",
+      "WA_SEND_THANK_YOU_MSG"
+    ]
+  },
+  {
+    "templateId": "WA_CLOSE_TICKET",
+    "name": "Clock Ticket",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"doctor\" : 0, \"whatsappObject\": {\"questionId\": \"\"} }"
+  },
+  {
+    "templateId": "WA_SEND_THANK_YOU_MSG",
+    "name": "Send thank you msg",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  }
+]
