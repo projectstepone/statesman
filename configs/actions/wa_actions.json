@@ -5,16 +5,8 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
-      "WA_INITIATE_CONVERSATION",
       "WA_SEND_LANGUAGE_SELECTION_MSG"
     ]
-  },
-  {
-    "templateId": "WA_INITIATE_CONVERSATION",
-    "name": "Set whatsapp object",
-    "active": true,
-    "type": "TRANSLATOR",
-    "translator": "{ \"whatsappObject\": {\"questionId\" : \"language\"} }"
   },
   {
     "templateId": "WA_SEND_LANGUAGE_SELECTION_MSG",
@@ -30,6 +22,7 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
+      "WA_SAVE_MSG_ID",
       "WA_SAVE_LANGUAGE",
       "WA_ASK_COVID_STATUS"
     ]
@@ -47,7 +40,7 @@
     "name": "Save user preferred language",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{\"language\" : \"{{dataObject.data.input}}\", \"whatsappObject\": {\"questionId\": \"covidStatus\"} }"
+    "translator": "{\"language\" : \"{{dataObject.data.input}}\"}"
   },
   {
     "templateId": "WA_ON_COVID_NEGATIVE",
@@ -55,7 +48,7 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
-      "WA_RESET_QUESTION",
+      "WA_RESET_MSG_ID",
       "WA_SEND_COVID_NEGATIVE_MSG"
     ]
   },
@@ -68,11 +61,11 @@
     "url": "http://localhost:8080/v1/templates/workflow"
   },
   {
-    "templateId": "WA_RESET_QUESTION",
-    "name": "Reset user questionId",
+    "templateId": "WA_RESET_MSG_ID",
+    "name": "Reset message id",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{ \"whatsappObject\": {\"questionId\": \"\"} }"
+    "translator": "{ \"whatsappObject\": {\"messageId\": \"\"} }"
   },
   {
     "templateId": "WA_RESTART_FLOW",
@@ -80,16 +73,9 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
-      "WA_RESET_DATA",
+      "WA_RESET_MSG_ID",
       "WA_RESET_MESSAGE"
     ]
-  },
-  {
-    "templateId": "WA_RESET_DATA",
-    "name": "Reset Whatsapp Data",
-    "active": true,
-    "type": "TRANSLATOR",
-    "translator": "{ \"whatsappObject\" : \"{}\" }"
   },
   {
     "templateId": "WA_RESET_MESSAGE",
@@ -112,16 +98,9 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
-      "WA_INITIATE_TRIAGE",
+      "WA_SAVE_MSG_ID",
       "WA_ASK_AGE_MSG"
     ]
-  },
-  {
-    "templateId": "WA_INITIATE_TRIAGE",
-    "name": "Initiate Whatsapp Triage",
-    "active": true,
-    "type": "TRANSLATOR",
-    "translator": "{ \"whatsappObject\": {\"questionId\" : \"age\"} }"
   },
   {
     "templateId": "WA_ASK_AGE_MSG",
@@ -136,7 +115,7 @@
     "name": "Save Patient Age",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{ \"whatsappObject\": {\"questionId\": \"comorbid\"}, \"age\" : \"{{dataObject.data.input}}\" }"
+    "translator": "{ \"age\" : \"{{dataObject.data.input}}\" }"
   },
   {
     "templateId": "WA_CHECK_COMORBIDITIES",
@@ -151,7 +130,7 @@
     "name": "Save Patient Comorbidity details",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{ \"whatsappObject\": {\"questionId\": \"fever\"}, \"comorbidityStatus\" : \"{{dataObject.data.input}}\" }"
+    "translator": "{ \"comorbidityStatus\" : \"{{dataObject.data.input}}\" }"
   },
   {
     "templateId": "WA_CHECK_FEVER",
@@ -166,7 +145,7 @@
     "name": "Save Patient Fever details",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{ \"whatsappObject\": {\"questionId\": \"motions\"}, \"fever\" : \"{{dataObject.data.input}}\" }"
+    "translator": "{ \"fever\" : \"{{dataObject.data.input}}\" }"
   },
   {
     "templateId": "WA_CHECK_MOTIONS",
@@ -181,7 +160,7 @@
     "name": "Save Patient Motions details",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{ \"whatsappObject\": {\"questionId\": \"breath\"}, \"motions\" : \"{{dataObject.data.input}}\" }"
+    "translator": "{ \"motions\" : \"{{dataObject.data.input}}\" }"
   },
   {
     "templateId": "WA_CHECK_BREATH",
@@ -196,7 +175,7 @@
     "name": "Save Patient Breath details",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{ \"whatsappObject\": {\"questionId\": \"oxygen\"}, \"breath\" : \"{{dataObject.data.input}}\" }"
+    "translator": "{ \"breath\" : \"{{dataObject.data.input}}\" }"
   },
   {
     "templateId": "WA_CHECK_OXYGEN",
@@ -219,6 +198,7 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
+      "WA_SAVE_MSG_ID",
       "WA_SAVE_SEVERITY_SEVERE",
       "WA_SEND_SEVERITY_SEVERE_MSG"
     ]
@@ -228,7 +208,7 @@
     "name": "Patient diagnosis severe",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{ \"severity\" : 3, \"whatsappObject\": {\"questionId\": \"followUp\"} }"
+    "translator": "{ \"severity\" : 3}"
   },
   {
     "templateId": "WA_SEND_SEVERITY_SEVERE_MSG",
@@ -244,6 +224,7 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
+      "WA_SAVE_MSG_ID",
       "WA_SAVE_SEVERITY_MODERATE",
       "WA_SEND_SEVERITY_MODERATE_MSG"
     ]
@@ -253,7 +234,7 @@
     "name": "Patient diagnosis moderate",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{ \"severity\" : 2, \"whatsappObject\": {\"questionId\": \"followUp\"} }"
+    "translator": "{ \"severity\" : 2}"
   },
   {
     "templateId": "WA_SEND_SEVERITY_MODERATE_MSG",
@@ -269,6 +250,7 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
+      "WA_SAVE_MSG_ID",
       "WA_SAVE_SEVERITY_MILD",
       "WA_SEND_SEVERITY_MILD_MSG"
     ]
@@ -278,7 +260,7 @@
     "name": "Patient diagnosis mild",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{ \"severity\" : 1, \"whatsappObject\": {\"questionId\": \"followUp\"} }"
+    "translator": "{ \"severity\" : 1}"
   },
   {
     "templateId": "WA_SEND_SEVERITY_MILD_MSG",
@@ -294,6 +276,7 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
+      "WA_RESET_MESSAGE",
       "WA_SAVE_FRESHDESK_REQUEST",
       "WA_RAISE_FRESHDESK_TICKET",
       "WA_SEND_DOCTOR_CALL_MSG"
@@ -304,7 +287,7 @@
     "name": "Save doctor connect",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{ \"doctor\" : 1, \"whatsappObject\": {\"questionId\": \"\"} }"
+    "translator": "{ \"doctor\" : 1}"
   },
   {
     "templateId": "WA_RAISE_FRESHDESK_TICKET",
@@ -328,6 +311,7 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
+      "WA_RESET_MESSAGE",
       "WA_CLOSE_TICKET",
       "WA_SEND_THANK_YOU_MSG"
     ]
@@ -337,7 +321,7 @@
     "name": "Clock Ticket",
     "active": true,
     "type": "TRANSLATOR",
-    "translator": "{ \"doctor\" : 0, \"whatsappObject\": {\"questionId\": \"\"} }"
+    "translator": "{ \"doctor\" : 0}"
   },
   {
     "templateId": "WA_SEND_THANK_YOU_MSG",
