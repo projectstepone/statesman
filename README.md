@@ -40,3 +40,14 @@ To debug the statesman service running via Docker in IntelliJ, follow below ment
 6. Bring up Docker Container via CLI
 7. Click on Debug with newly created config
 ```
+
+To start testing, follow below mentioned steps:
+```
+0. Run swagger on localhost:8080/swagger/
+1. Insert workflow template from configs/workflow/workflow_template.json in "Create Workflow Template". Copy the workflow template id in the response. Note: This would be different from the id in request. Save this template id for future reference.
+2. Insert actions from configs/actions/actions.json in "Create Action Template". All actions need to be added individually. Alternately you can run the insert_actions.py script
+3. Insert transitions from configs/transitions/transitions.json in "Create State Transitions". Use the workflow template id obtained above
+4. Initiate a new workflow using "Trigger new workflow for given WorkflowTemplateId". Use the workflow template id obtained above. Copy the workflow id in the response. This is the actual workflow instance
+5. Trigger the workflow with expected data from "Trigger workflow" flow. The request body is available using "$.update" in transitions and using "dataObject.data" in actions. Workflow data is accessible using "$.data" in transitions and using "dataObject.data" in actions
+```
+
