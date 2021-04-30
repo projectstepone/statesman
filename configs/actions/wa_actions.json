@@ -1,6 +1,6 @@
 [
   {
-    "templateId": "WA_LANGUAGE_SELECTION",
+    "templateId": "WA_WELCOME",
     "name": "Send language selection msg",
     "active": true,
     "type": "COMPOUND",
@@ -9,12 +9,24 @@
     ]
   },
   {
+    "templateId": "WA_WELCOME_MSG",
+    "name": "Send welcome msg",
+    "active": true,
+    "type": "HTTP",
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Welcome to COVID National Helpline. \\n \\nPlease answer the questions appropriately to receive assistance\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
+  },
+  {
     "templateId": "WA_SEND_LANGUAGE_SELECTION_MSG",
     "name": "Send language selection msg",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Welcome to COVID National Helpline. \\n \\nPlease answer the questions appropriately to receive assistance. \\n \\n \\nPlease select language \\nType 1 👉 English\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_SAVE_LANGUAGE_AND_SEND_COVID_STATUS_MSG",
@@ -28,12 +40,24 @@
     ]
   },
   {
+    "templateId": "WA_SEND_LANGUAGE_CONFIRMATION_MSG",
+    "name": "Send language confirmation msg",
+    "active": true,
+    "type": "HTTP",
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Thank you for selecting the language, please answer the questions which follow.\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
+  },
+  {
     "templateId": "WA_ASK_COVID_STATUS",
     "name": "Ask covid status",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Thank you for selecting the language, please answer the questions which follow.\\n\\n\\nAre you Covid Positive or have coronavirus related symptoms \\n\\nType 1 👉🏼 If you have been tested for Covid and your report is positive \\n\\nType 2 👉🏼 If you have coronavirus related symptoms, but have not tested/ waiting for report\\n\\nType 3 👉🏼 If you don’t have coronavirus related symptoms\\n\\nType 9 👉 If you want to change language\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_SAVE_LANGUAGE",
@@ -57,8 +81,10 @@
     "name": "Send covid Negative msg",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Since you don’t have any signs of Coronavirus, we will discontinue the conversation.\\n\\nPlease follow hygiene and social distancing. Call us if you suspect any symptoms. Thank you for contacting Stepone Helpline 97456-97456\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_RESET_MSG_ID",
@@ -74,16 +100,8 @@
     "type": "COMPOUND",
     "actionTemplates": [
       "WA_RESET_MSG_ID",
-      "WA_RESET_MESSAGE"
+      "WA_WELCOME"
     ]
-  },
-  {
-    "templateId": "WA_RESET_MESSAGE",
-    "name": "Send reset flow message",
-    "active": true,
-    "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
   },
   {
     "templateId": "WA_SAVE_COVID_STATE",
@@ -107,8 +125,10 @@
     "name": "Ask user age",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"What is your age? \\n\\nYou can type a number and send it. \\n\\nEx - 30, if your are 30 years old\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_SAVE_AGE",
@@ -122,8 +142,10 @@
     "name": "Check comorbidities",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Do you have any comorbidities such as diabetes, hypertension, heart disease, HIV or cancer?\\n\\nType 1 👉🏼 Yes, or\\nType 2 👉🏼 No\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_SAVE_COMORBIDITIES",
@@ -137,8 +159,10 @@
     "name": "Check fever",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Do you have persistent high fever, like greater than 101 for 3 or more days? \\n\\nType 1 👉 Yes, or, \\nType 2 👉 No\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_SAVE_FEVER",
@@ -152,8 +176,10 @@
     "name": "Check motions",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Do you have loose motions, like more than 4 times a day? \\n\\nType 1 👉 Yes, or, \\nType 2 👉 No\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_SAVE_MOTIONS",
@@ -167,8 +193,10 @@
     "name": "Check motions",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Are you having shortness of breath apart from dry cough, or fever? \\n\\nType 1 👉 Yes, or, \\nType 2 👉 No\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_SAVE_BREATH",
@@ -182,8 +210,10 @@
     "name": "Check motions",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"What is your oxygen level? \\n\\nType 1 👉  if it is more than 95, or, \\nType 2 👉 if it is between 92 to 94, or, \\nType 3 👉 if it is less than 92\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_SAVE_OXYGEN",
@@ -200,7 +230,7 @@
     "actionTemplates": [
       "WA_SAVE_MSG_ID",
       "WA_SAVE_SEVERITY_SEVERE",
-      "WA_SEND_SEVERITY_SEVERE_MSG"
+      "WA_SEND_CONTACT_DOCTOR_MSG"
     ]
   },
   {
@@ -211,12 +241,24 @@
     "translator": "{ \"severity\" : 3}"
   },
   {
-    "templateId": "WA_SEND_SEVERITY_SEVERE_MSG",
+    "templateId": "WA_SEND_SEVERITY_SEVERE_MEDICAL_ATTENTION",
     "name": "Patient diagnosis severe",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Your symptoms are severe \\n\\nYou need medical attention immediately in hospital with ICU support.\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
+  },
+  {
+    "templateId": "WA_SEND_CONTACT_DOCTOR_MSG",
+    "name": "Patient diagnosis severe",
+    "active": true,
+    "type": "HTTP",
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Your symptoms are severe \\n\\nYou need medical attention immediately in hospital with ICU support.\\n\\n\\nType 1 👉 If you wish to speak to a doctor,\\nType 2 👉 if you want to end this conversation\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_PATIENT_MODERATE_CONDITION",
@@ -226,7 +268,7 @@
     "actionTemplates": [
       "WA_SAVE_MSG_ID",
       "WA_SAVE_SEVERITY_MODERATE",
-      "WA_SEND_SEVERITY_MODERATE_MSG"
+      "WA_SEND_SEVERITY_MODERATE_MEDICAL_ATTENTION"
     ]
   },
   {
@@ -241,8 +283,20 @@
     "name": "Patient diagnosis moderate",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Your symptoms are Mild \\n\\nThings to take care of -\\n1) Keep track of the oxygen level at regular intervals.\\n2)Take the 6 minute walk test(3 times a day or when you feel uneasy), if your oxygen level falls more than 4 points during this test, please speak to your doctor immediately. Your condition can deteriorate in coming days \\n3)Please avoid contact with any of your family members and follow strict hygiene.\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
+  },
+  {
+    "templateId": "WA_SEND_SEVERITY_MODERATE_MEDICAL_ATTENTION",
+    "name": "Patient diagnosis moderate",
+    "active": true,
+    "type": "HTTP",
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Your symptoms are Mild \\n\\nThings to take care of -\\n1) Keep track of the oxygen level at regular intervals.\\n2)Take the 6 minute walk test(3 times a day or when you feel uneasy), if your oxygen level falls more than 4 points during this test, please speak to your doctor immediately. Your condition can deteriorate in coming days \\n3)Please avoid contact with any of your family members and follow strict hygiene.\\n\\n\\nIn future - Consult a doctor, and hospitalisation might be required in future \\n\\nYou are prescribed to take the following texts -1) Complete Hemogram (CBC), CRP\\n2)D-Dimer, LDH, Serum Ferritin\\n\\n\\nType 1 👉 If you wish to speak to a doctor,\\nType 2 👉 if you want to end this conversation\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_PATIENT_MILD_CONDITION",
@@ -252,7 +306,7 @@
     "actionTemplates": [
       "WA_SAVE_MSG_ID",
       "WA_SAVE_SEVERITY_MILD",
-      "WA_SEND_SEVERITY_MILD_MSG"
+      "WA_SEND_SEVERITY_MILD_MEDICAL_ATTENTION"
     ]
   },
   {
@@ -267,8 +321,20 @@
     "name": "Patient diagnosis mild",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Your symptoms are Mild \\n\\nThings to take care of -\\n1) Keep track of the oxygen level at regular intervals.\\n2)Take the 6 minute walk test(3 times a day or when you feel uneasy), if your oxygen level falls more than 4 points during this test, please speak to your doctor immediately. Your condition can deteriorate in coming days \\n3)Please avoid contact with any of your family members and follow strict hygiene.\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
+  },
+  {
+    "templateId": "WA_SEND_SEVERITY_MILD_MEDICAL_ATTENTION",
+    "name": "Patient diagnosis mild",
+    "active": true,
+    "type": "HTTP",
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Your symptoms are Mild \\n\\nThings to take care of -\\n1) Keep track of the oxygen level at regular intervals.\\n2)Take the 6 minute walk test(3 times a day or when you feel uneasy), if your oxygen level falls more than 4 points during this test, please speak to your doctor immediately. Your condition can deteriorate in coming days \\n3)Please avoid contact with any of your family members and follow strict hygiene.\\n\\n\\nYou might need medical attention if - \\n1)Difficulty in breathing \\n2)Fever/ severe cough \\n3)Oxygen level drops more than 4 points in the 6 min walk test.\\n\\n\\nType 1 👉 If you wish to speak to a doctor,\\nType 2 👉 if you want to end this conversation\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_RAISE_FRESHDESK_TICKET_AND_SEND_MSG",
@@ -276,7 +342,6 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
-      "WA_RESET_MESSAGE",
       "WA_SAVE_FRESHDESK_REQUEST",
       "WA_RAISE_FRESHDESK_TICKET",
       "WA_SEND_DOCTOR_CALL_MSG"
@@ -302,8 +367,10 @@
     "name": "Send doctor call back msg",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Our doctor will call you today. Please keep your phone charged and next to you.\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   },
   {
     "templateId": "WA_THANK_YOU_MSG",
@@ -311,7 +378,6 @@
     "active": true,
     "type": "COMPOUND",
     "actionTemplates": [
-      "WA_RESET_MESSAGE",
       "WA_CLOSE_TICKET",
       "WA_SEND_THANK_YOU_MSG"
     ]
@@ -328,7 +394,9 @@
     "name": "Send thank you msg",
     "active": true,
     "type": "HTTP",
-    "method": "GET",
-    "url": "http://localhost:8080/v1/templates/workflow"
+    "method": "POST",
+    "url": "https://api.kaleyra.io/v1/SSID/messages",
+    "payload": "{\"to\":\"+91TO_PHONE\",\"body\":\"Thank you\",\"sender\":\"+91FROM_PHONE\",\"channel\":\"WhatsApp\",\"from\":\"+91FROM_PHONE\",\"type\":\"text\"}",
+    "headers": "api-key:APIKEY"
   }
 ]

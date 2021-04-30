@@ -9,7 +9,7 @@
       "name": "WA_LANGUAGE_SELECTION",
       "terminal": false
     },
-    "action": "WA_LANGUAGE_SELECTION"
+    "action": "WA_WELCOME"
   },
   {
     "id": "2_WA_LANGUAGE_SELECTION_TO_CHECK_COVID",
