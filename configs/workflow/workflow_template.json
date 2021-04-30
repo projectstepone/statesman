@@ -1,0 +1,12 @@
+{
+  "id": "6294a243-db91-41c1-85ca-f93c3e38d52f",
+  "name": "KA_HI_MONITORING",
+  "active": true,
+  "rules": [
+    "\"$.wfSource\" == \"fd\" && \"$.state\" == \"karnataka\" && \"$.flowType\" == \"fd_hi\" "
+  ],
+  "startState": {
+    "name": "START",
+    "terminal": false
+  }
+}
