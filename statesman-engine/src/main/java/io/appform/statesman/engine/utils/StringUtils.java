@@ -42,4 +42,11 @@ public class StringUtils {
         }
         return s.replaceAll("\\r\\n|\\r|\\n", " ");
     }
+
+    public static String removeNewLineAndTabs(String s) {
+        if(Strings.isNullOrEmpty(s)) {
+            return "";
+        }
+        return s.replaceAll("\\r+\\n+|\\r+|\\n+|\\t+", " ");
+    }
 }

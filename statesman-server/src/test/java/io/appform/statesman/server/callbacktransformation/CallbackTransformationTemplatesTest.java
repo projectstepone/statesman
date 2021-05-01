@@ -3,11 +3,13 @@ package io.appform.statesman.server.callbacktransformation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStrategy;
 import io.appform.hope.lang.HopeLangEngine;
+import io.appform.statesman.engine.handlebars.HandleBarsService;
 import io.appform.statesman.model.StateTransition;
 import io.appform.statesman.server.callbacktransformation.impl.StepByStepTransformationTemplate;
 import io.dropwizard.jackson.Jackson;
@@ -171,5 +173,28 @@ public class CallbackTransformationTemplatesTest {
                 .filter(stateTransition -> engine.evaluate(evalCache.get(stateTransition.getRule()), node))
                 .findFirst();
         Assert.assertTrue(match.isPresent());
+    }
+
+    @Test
+    public void testSingleLineTextHandlebarHelper() {
+
+        final String singleLineText = "This\t\t\t\t\n\n\n\nshould\n\tbe a single\t\t\nline\t\n\ntext.\r\r\r\r\n\n\t\t";
+
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+                .set("dataObject", mapper.createObjectNode()
+                        .set("data", mapper.createObjectNode()
+                                .set("text", new TextNode(singleLineText))
+                        )
+                );
+
+        final String transformedLine = hb.transform("{{singleLineText dataObject.data.text}}", node);
+
+        Assert.assertNotNull(transformedLine);
+        Assert.assertFalse(transformedLine.contains("\t"));
+        Assert.assertFalse(transformedLine.contains("\n"));
+        Assert.assertFalse(transformedLine.contains("\r"));
     }
 }
