@@ -13,10 +13,6 @@ import io.appform.statesman.engine.utils.StringUtils;
 import io.appform.statesman.model.exception.ResponseCode;
 import io.appform.statesman.model.exception.StatesmanError;
 import io.dropwizard.jackson.Jackson;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.jsoup.Jsoup;
-
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
@@ -24,18 +20,31 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.jsoup.Jsoup;
 
 
 @Slf4j
 public class HandleBarsHelperRegistry {
 
-    private static final String OPERATION_NOT_SUPPORTED = "Operation not supported: ";
     private static final String DEFAULT_TIME_ZONE = "IST";
     private static final DecimalFormat decimalFormat = new DecimalFormat("######.##");
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
+    private static final String EMPTY_STRING = "";
+    private static final String POINTER = "pointer";
 
     private final Handlebars handlebars;
 
@@ -91,6 +100,8 @@ public class HandleBarsHelperRegistry {
         registerAdd();
         registerCountIf();
         registerCountMatchStr();
+        registerTrimDecimalPoints();
+        registerTrimDecimalPointsPtr();
     }
 
     private Object compareGte(int lhs) {
@@ -124,7 +135,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerGte() {
-        handlebars.registerHelper("gte", (Helper<Number>) (aNumber, options) -> {
+        handlebars.registerHelper("gte", (Number aNumber, Options options) -> {
             val option = options.param(0);
             if (option instanceof Long) {
                 return compareGte(Long.compare(aNumber.longValue(), (Long) option));
@@ -143,7 +154,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerSelectValuesGivenRange() {
-        handlebars.registerHelper("selectValuesGivenRange", (Helper<Number>) (aNumber, options) -> {
+        handlebars.registerHelper("selectValuesGivenRange", (Number aNumber, Options options) -> {
             val optionFrom = options.param(0);
             val optionTo = options.param(1);
             val optionTrue = options.param(2);
@@ -168,7 +179,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerGt() {
-        handlebars.registerHelper("gt", (Helper<Number>) (aNumber, options) -> {
+        handlebars.registerHelper("gt", (Number aNumber, Options options) -> {
             val option = options.param(0);
             if (option instanceof Long) {
                 return compareGt(Long.compare(aNumber.longValue(), (Long) option));
@@ -187,7 +198,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerLte() {
-        handlebars.registerHelper("lte", (Helper<Number>) (aNumber, options) -> {
+        handlebars.registerHelper("lte", (Number aNumber, Options options) -> {
             val option = options.param(0);
             if (option instanceof Long) {
                 return compareLte(Long.compare(aNumber.longValue(), (Long) option));
@@ -207,7 +218,7 @@ public class HandleBarsHelperRegistry {
 
 
     private void registerLt() {
-        handlebars.registerHelper("lt", (Helper<Number>) (aNumber, options) -> {
+        handlebars.registerHelper("lt", (Number aNumber, Options options) -> {
             val option = options.param(0);
             if (option instanceof Long) {
                 int lhs = Long.compare(aNumber.longValue(), (Long) option);
@@ -227,7 +238,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerEq() {
-        handlebars.registerHelper("eq", (Helper<Number>) (aNumber, options) -> {
+        handlebars.registerHelper("eq", (Number aNumber, Options options) -> {
             val option = options.param(0);
             if (option instanceof Long) {
                 int lhs = Long.compare(aNumber.longValue(), (Long) option);
@@ -301,7 +312,7 @@ public class HandleBarsHelperRegistry {
 
 
     private void registerStreq() {
-        handlebars.registerHelper("streq", (Helper<String>) (value, options) -> {
+        handlebars.registerHelper("streq", (String value, Options options) -> {
             if (!Strings.isNullOrEmpty(value) && value.equals(options.param(0))) {
                 return "true";
             }
@@ -310,7 +321,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerAdd() {
-        handlebars.registerHelper("add", (Helper<Number>) (aNumber, options) -> {
+        handlebars.registerHelper("add", (Number aNumber, Options options) -> {
             val option = options.param(0);
             if (option instanceof Long) {
                 return aNumber.longValue() + (Long) option;
@@ -371,7 +382,7 @@ public class HandleBarsHelperRegistry {
                 }
                 val count = Arrays.stream(keys)
                         .filter(keyElement -> {
-                            String value = "";
+                            String value = EMPTY_STRING;
                             val key = keyElement.trim();
                             if (!Strings.isNullOrEmpty(key)) {
                                 val dataNode = node.at(key);
@@ -390,31 +401,31 @@ public class HandleBarsHelperRegistry {
 
     private void registerStrAlphaNumeric() {
         handlebars.registerHelper("alphaNumeric",
-                                  (Helper<String>) (value, options) -> StringUtils.alphaNumeric(value));
+                                  (String value, Options options) -> StringUtils.alphaNumeric(value));
     }
 
     private void registerStrNormalize() {
         handlebars.registerHelper("normalize",
-                                  (Helper<String>) (value, options) -> StringUtils.normalize(value));
+                                  (String value, Options options) -> StringUtils.normalize(value));
     }
 
     private void registerStrSingleLineText() {
         handlebars.registerHelper("singleLineText",
-                                  (Helper<String>) (value, options) -> StringUtils.removeNewLine(value));
+                                  (String value, Options options) -> StringUtils.removeNewLine(value));
     }
 
     private void registerStrNormalizeUpper() {
         handlebars.registerHelper("normalize_upper",
-                                  (Helper<String>) (value, options) -> StringUtils.normalize(value).toUpperCase());
+                                  (String value, Options options) -> StringUtils.normalize(value).toUpperCase());
     }
 
     private void registerStrNormalizeInitCap() {
         handlebars.registerHelper("normalize_init_cap",
-                                  (Helper<String>) (value, options) -> StringUtils.normalizeInitCap(value));
+                                  (String value, Options options) -> StringUtils.normalizeInitCap(value));
     }
 
     private void registerDateFormat() {
-        handlebars.registerHelper("dateFormat", (Helper<Long>) (context, options) -> {
+        handlebars.registerHelper("dateFormat", (Long context, Options options) -> {
             try {
                 if (null != context) {
                     SimpleDateFormat sdf = new SimpleDateFormat(options.param(0));
@@ -434,7 +445,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerToEpoch() {
-        handlebars.registerHelper("toEpochTime", (Helper<String>) (context, options) -> {
+        handlebars.registerHelper("toEpochTime", (String context, Options options) -> {
             try {
                 if (null == options.params || options.params.length == 0) {
                     return 0L;
@@ -457,7 +468,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerToLowerCase() {
-        handlebars.registerHelper("toLowerCase", (Helper<String>) (context, options) -> {
+        handlebars.registerHelper("toLowerCase", (String context, Options options) -> {
             if (!Strings.isNullOrEmpty(context)) {
                 return context.toLowerCase().trim();
             }
@@ -466,7 +477,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerToUpperCase() {
-        handlebars.registerHelper("toUpperCase", (Helper<String>) (context, options) -> {
+        handlebars.registerHelper("toUpperCase", (String context, Options options) -> {
             if (!Strings.isNullOrEmpty(context)) {
                 return context.toUpperCase().trim();
             }
@@ -475,7 +486,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerRSub() {
-        handlebars.registerHelper("rsub", (Helper<String>) (context, options) -> {
+        handlebars.registerHelper("rsub", (String context, Options options) -> {
             if (!Strings.isNullOrEmpty(context)) {
                 int length = context.length();
                 Integer index = options.param(0);
@@ -489,7 +500,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerDate() {
-        handlebars.registerHelper("date", (Helper<Long>) (context, options) -> {
+        handlebars.registerHelper("date", (Long context, Options options) -> {
             SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
             try {
                 if (null != context) {
@@ -504,7 +515,7 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerDecimalFormat() {
-        handlebars.registerHelper("decimalFormat", (Helper<Number>) (aNumber, options) -> {
+        handlebars.registerHelper("decimalFormat", (Number aNumber, Options options) -> {
             DecimalFormat decimalFormatReqd =
                     (options.params.length > 0 && !Strings.isNullOrEmpty(options.param(0)))
                     ? new DecimalFormat(options.param(0))
@@ -515,17 +526,17 @@ public class HandleBarsHelperRegistry {
 
     private void registerStr() {
         handlebars.registerHelper("str",
-                                  (Helper<Number>) (aNumber, options) -> String.valueOf(aNumber.doubleValue()));
+                                  (Number aNumber, Options options) -> String.valueOf(aNumber.doubleValue()));
     }
 
     private void registerSuccess() {
-        handlebars.registerHelper("success", (Helper<Boolean>) (context, options) -> context
+        handlebars.registerHelper("success", (Boolean context, Options options) -> context
                                                                                      ? "succeeded"
                                                                                      : "failed");
     }
 
     private void registerRupees() {
-        handlebars.registerHelper("rupees", (Helper<Number>) (aNumber, options) -> {
+        handlebars.registerHelper("rupees", (Number aNumber, Options options) -> {
             double value = 0;
             if (aNumber instanceof Long) {
                 value = aNumber.longValue();
@@ -544,7 +555,7 @@ public class HandleBarsHelperRegistry {
         handlebars.registerHelper("map_lookup", new Helper<JsonNode>() {
             @Override
             public CharSequence apply(JsonNode node, Options options) throws IOException {
-                final String key = options.hash("pointer");
+                final String key = options.hash(POINTER);
                 final int lastIndex = lastIndex(options);
                 int value = lastIndex;
                 if (!Strings.isNullOrEmpty(key)) {
@@ -576,7 +587,7 @@ public class HandleBarsHelperRegistry {
         handlebars.registerHelper("map_lookup_arr", new Helper<JsonNode>() {
             @Override
             public CharSequence apply(JsonNode node, Options options) throws IOException {
-                final String key = options.hash("pointer");
+                final String key = options.hash(POINTER);
                 final int lastIndex = lastIndex(options);
                 List<Integer> indices = new ArrayList<>();
                 if (Strings.isNullOrEmpty(key)) {
@@ -631,11 +642,11 @@ public class HandleBarsHelperRegistry {
         });
     }
 
-    /*
-    Example Usage:
-            JsonNode obj <- {"state" : "karnataka","language" : 2 }
-            defaults to english under error cases
-            Template template = handlebars.compileInline("{{map_arr_lookup array='english,hindi,tamil,bengali,kannada' op_karnataka='2,3,1' op_tamilnadu='3,2,1' key1='/state' key2='/language'}}" );
+    /**
+     * Example Usage:
+     *        JsonNode obj <- {"state" : "karnataka","language" : 2 }
+     *        defaults to english under error cases
+     *        Template template = handlebars.compileInline("{{map_arr_lookup array='english,hindi,tamil,bengali,kannada' op_karnataka='2,3,1' op_tamilnadu='3,2,1' key1='/state' key2='/language'}}" );
      */
     private void registerMapArrLookup() {
         handlebars.registerHelper("map_arr_lookup", new Helper<JsonNode>() {
@@ -683,24 +694,25 @@ public class HandleBarsHelperRegistry {
             }
 
             private CharSequence empty() {
-                return "";
+                return EMPTY_STRING;
             }
         });
     }
 
-    /*
-Example Usage:
-        JsonNode obj <- {"state" : "KA","language" : 41 }
-        defaults to english under error cases
-        Template template = handlebars.compileInline("{{map_arr_lookup default='english' op_ka='1:kannada,2:hindi,3:english,41:tamil,42:telugu,43:malayalam' op_tn='3:tamil' key1='/state' key2='/language'}}" );
- */
+    /**
+      * Example Usage:
+      *          JsonNode obj <- {"state" : "KA","language" : 41 }
+      *          defaults to english under error cases
+      *       Template template = handlebars.compileInline("{{map_arr_lookup default='english' op_ka='1:kannada,2:hindi,3:english,41:tamil,42:telugu,43:malayalam' op_tn='3:tamil' key1='/state' key2='/language'}}" );
+      */
     private void registerMultiMapLookup() {
         handlebars.registerHelper("multi_map_lookup", new Helper<JsonNode>() {
             @Override
             public CharSequence apply(JsonNode node, Options options) throws IOException {
 
                 String defFeched = options.hash("default");
-                final String defaultValue = ( null == defFeched || defFeched.isEmpty() ) ? "" : defFeched;
+                final String defaultValue = ( null == defFeched || defFeched.isEmpty() ) ? EMPTY_STRING
+                    : defFeched;
 
                 final String key1 = options.hash("key1");
                 if ( null == key1 || key1.isEmpty() ) return defaultValue;
@@ -735,10 +747,6 @@ Example Usage:
 
                 return defaultValue;
             }
-
-            private CharSequence empty() {
-                return "";
-            }
         });
     }
 
@@ -747,7 +755,7 @@ Example Usage:
             @Override
             public CharSequence apply(JsonNode node, Options options) throws IOException {
 
-                final String key = options.hash("pointer");
+                final String key = options.hash(POINTER);
                 if (Strings.isNullOrEmpty(key)) {
                     return empty();
                 }
@@ -777,7 +785,7 @@ Example Usage:
             @Override
             public CharSequence apply(JsonNode node, Options options) throws IOException {
 
-                final String key = options.hash("pointer");
+                final String key = options.hash(POINTER);
                 if (Strings.isNullOrEmpty(key)) {
                     return empty();
                 }
@@ -825,7 +833,7 @@ Example Usage:
             @Override
             public CharSequence apply(JsonNode node, Options options) throws IOException {
 
-                final String key = options.hash("pointer");
+                final String key = options.hash(POINTER);
                 if (Strings.isNullOrEmpty(key)) {
                     return empty();
                 }
@@ -844,8 +852,8 @@ Example Usage:
                 return lookupValue.toString();
             }
 
-            private CharSequence empty() throws JsonProcessingException {
-                return "";
+            private CharSequence empty() {
+                return EMPTY_STRING;
             }
         });
     }
@@ -855,7 +863,7 @@ Example Usage:
             @Override
             public CharSequence apply(JsonNode node, Options options) throws IOException {
 
-                final String key = options.hash("pointer");
+                final String key = options.hash(POINTER);
                 if (Strings.isNullOrEmpty(key)) {
                     return empty();
                 }
@@ -894,13 +902,13 @@ Example Usage:
             }
 
             private CharSequence empty() {
-                return "";
+                return EMPTY_STRING;
             }
         });
     }
 
     private void registerPhone() {
-        handlebars.registerHelper("phone", (Helper<String>) (context, options) -> {
+        handlebars.registerHelper("phone", (String context, Options options) -> {
             if (Strings.isNullOrEmpty(context)) {
                 return null;
             }
@@ -984,7 +992,7 @@ Example Usage:
         handlebars.registerHelper("toIntPtr", new Helper<JsonNode>() {
             @Override
             public Object apply(JsonNode node, Options options) throws IOException {
-                final String pointer = options.hash("pointer");
+                final String pointer = options.hash(POINTER);
                 if (!Strings.isNullOrEmpty(pointer) && null != node && !node.isNull() && !node.isMissingNode()) {
                     val intNode = node.at(pointer);
                     if (intNode.isIntegralNumber()) {
@@ -1004,14 +1012,54 @@ Example Usage:
         });
     }
 
+    private void registerTrimDecimalPoints() {
+        handlebars.registerHelper("trimDecimalPoints", (String context, Options options) -> {
+            try {
+                return trimDecimalPoints(context);
+            } catch (Exception e) {
+                log.error("Exception occurred while removing decimal points", e);
+            }
+            return "-1";
+        });
+    }
+
+    private void registerTrimDecimalPointsPtr() {
+        handlebars.registerHelper("trimDecimalPointsPtr", (JsonNode node, Options options) -> {
+            try {
+                final String pointer = options.hash(POINTER);
+                if (!Strings.isNullOrEmpty(pointer) && null != node && !node.isNull() && !node.isMissingNode()) {
+                    JsonNode contextNode = node.at(pointer);
+                    String context =
+                        contextNode == null || contextNode.isMissingNode() || contextNode.isNull()
+                            ? null : contextNode.asText();
+                    return trimDecimalPoints(context);
+                }
+            } catch (Exception e) {
+                log.error("Exception occurred while removing decimal points", e);
+            }
+            return "-1";
+        });
+    }
+
+    private Object trimDecimalPoints(String context) {
+        if (!Strings.isNullOrEmpty(context)) {
+            if (context.contains(".")) {
+                return context.substring(0, context.indexOf("."));
+            } else {
+                return context;
+            }
+        }
+        return "-1";
+    }
+
     private void registerHTML2Text() {
         handlebars.registerHelper("html2Text", new Helper<String>() {
             @Override
             public CharSequence apply(String htmlString, Options options) throws IOException {
                 final String text = Jsoup.parse(htmlString).text();
                 return Strings.isNullOrEmpty(text)
-                       ? ""
-                       : text.replace("\\n", "").trim();
+                       ? EMPTY_STRING
+                       : text.replace("\\n", EMPTY_STRING).trim();
             }
         });
     }
@@ -1054,7 +1102,7 @@ Example Usage:
     }
 
     private String numericStr(String context) {
-        return context.replaceAll("[^\\p{Digit}]", "");
+        return context.replaceAll("[^\\p{Digit}]", EMPTY_STRING);
     }
 
     private int lastIndex(Options options) {
