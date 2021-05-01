@@ -47,6 +47,6 @@ public class StringUtils {
         if(Strings.isNullOrEmpty(s)) {
             return "";
         }
-        return s.replaceAll("\\r+\\n+|\\r+|\\n+|\\t+", " ");
+        return s.replaceAll("\\r+|\\n+|\\t+", " ");
     }
 }

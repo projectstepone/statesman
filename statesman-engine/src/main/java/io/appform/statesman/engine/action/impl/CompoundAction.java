@@ -45,6 +45,10 @@ public class CompoundAction extends BaseAction<CompoundActionTemplate> {
 
     @Override
     public JsonNode execute(CompoundActionTemplate compoundActionTemplate, Workflow workflow) {
+
+        log.debug("Compound Action triggered with Template: {} and Workflow: {}",
+                compoundActionTemplate, workflow);
+
         val response = mapper.createObjectNode();
         compoundActionTemplate.getActionTemplates()
                 .forEach(actionId ->

@@ -2,6 +2,8 @@ version: '2'
 services:
    mariadb_1:
     image: mariadb:10.0.38
+    ports:
+    - "34407:3306"
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: statesman_db_1
@@ -9,6 +11,8 @@ services:
       MYSQL_PASSWORD: password
    mariadb_2:
     image: mariadb:10.0.38
+    ports:
+    - "35508:3306"
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: statesman_db_2
@@ -20,6 +24,7 @@ services:
     ports:
     - "8080:8080"
     - "8081:8081"
+    - "8090:8090"
     volumes:
     - /var/log/statesman-server
     environment:
@@ -29,6 +34,7 @@ services:
       DB_PASSWORD: password
       FOXTROT_ENDPOINT: https://localhost:17000
       FOXTROT_TOKEN: INV_TOKEN_
+      JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8090
     depends_on:
       - mariadb_1
       - mariadb_2

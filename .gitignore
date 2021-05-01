@@ -70,7 +70,12 @@ buildNumber.properties
 
 ## Plugin-specific files:
 
-# IntelliJ
+# Eclipse
+.classpath
+.factorypath
+.project
+settings.json
+org.eclipse.*
 
 # mpeltonen/sbt-idea plugin
 
