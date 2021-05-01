@@ -36,10 +36,10 @@ public class StringUtils {
         return  WordUtils.capitalize(s);
     }
 
-    public static String removeNewLine(String s) {
+    public static String removeNewLineAndTabs(String s) {
         if(Strings.isNullOrEmpty(s)) {
             return "";
         }
-        return s.replaceAll("\\r\\n|\\r|\\n", " ");
+        return s.replaceAll("\\s\\s*", " ");
     }
 }

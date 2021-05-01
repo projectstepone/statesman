@@ -1,0 +1,124 @@
+[
+  {
+    "templateId": "HI_KA_IVR_OUTBOUND_CALL",
+    "name": "Outbound call for HI",
+    "active": true,
+    "type": "HTTP",
+    "method": "GET",
+    "url": "http://localhost:8080/v1/templates/workflow"
+  },
+  {
+    "templateId": "HI_KA_SYMPTOMS_INCREASE_LESS_THAN_2_ACTION",
+    "name": "HI Init action",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "HI_KA_RESET_UNANSWERED_DAYS",
+      "HI_KA_LESS_THAN_2_NEW_SYMPTOMS"
+    ]
+  },
+  {
+    "templateId": "HI_KA_RESET_UNANSWERED_DAYS",
+    "name": "Reset unansweredDays to 0",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"unansweredDays\" : 0 }"
+  },
+  {
+    "templateId": "HI_KA_LESS_THAN_2_NEW_SYMPTOMS",
+    "name": "Less than 2 new symptoms",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"moreThan2NewSymptoms\" : false }"
+  },
+  {
+    "templateId": "HI_KA_SYMPTOMS_INCREASE_MORE_THAN_2_ACTION",
+    "name": "HI Init action",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "HI_KA_RESET_UNANSWERED_DAYS",
+      "HI_KA_MORE_THAN_2_NEW_SYMPTOMS"
+    ]
+  },
+  {
+    "templateId": "HI_KA_MORE_THAN_2_NEW_SYMPTOMS",
+    "name": "More than 2 new symptoms",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"moreThan2NewSymptoms\" : true }"
+  },
+  {
+    "templateId": "INDEX_2_PUBLISH_HI_COMPLETION_KA",
+    "name": "Publish home isolation completion to Index 2",
+    "active": true,
+    "type": "HTTP",
+    "method": "POST",
+    "url": "http://localhost:8080/v1/templates/workflow",
+    "payload": "{\"districtpcode\":\"{{dataObject.data.district_pcode}}\",\"status\":\"Home Isolation Completed\",\"date\":\"{{dateFormat dataObject.data.now 'MM/dd/yyyy'}}\"}",
+    "responseTranslator": "{\"index2PublishResponse\":\"{{status}}\"}"
+  },
+  {
+    "templateId": "HI_KA_INIT",
+    "name": "HI Init action",
+    "active": true,
+    "type": "COMPOUND",
+    "actionTemplates": [
+      "HI_KA_DATA_INIT"
+    ]
+  },
+  {
+    "templateId": "HI_KA_DATA_INIT",
+    "name": "Initialize HI data",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{\"symptomsCount\":0,\"unansweredDays\":0,\"totalUnansweredDays\":0,\"days\":1,\"maxDays\":10,\"callTrigger\":false,\"retryCallAttempt2\":false,\"retryCallAttempt3\":false,\"endTime\": {{add 864000000 (toEpochTime dataObject.data.positive_confirmation_date 'dd MMM, yyyy')}} }"
+  },
+  {
+    "templateId": "HI_KA_INCREASE_DAYS",
+    "name": "increase days by 1",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"days\" : {{add 1 dataObject.data.days}} }"
+  },
+  {
+    "templateId": "HI_KA_INCREASE_UNANSWERED_DAYS",
+    "name": "increase unansweredDays by 1",
+    "active": true,
+    "type": "TRANSLATOR",
+    "translator": "{ \"unansweredDays\" : {{add 1 dataObject.data.unansweredDays}}, \"totalUnansweredDays\" : {{add 1 dataObject.data.totalUnansweredDays}} }"
+  },
+  {
+    "templateId": "HI_KA_SYMPTOMS_DOCTOR_FOLLOWUP",
+    "name": "HI symptoms doctor follow up FreshDesk Ticket Call",
+    "active": true,
+    "type": "HTTP",
+    "method": "POST",
+    "url": "http://localhost:8080/v1/templates/workflow",
+    "payload": "{\"type\":\"KA Covid Positive\",\"description\":\"<b>Karnataka - {{dataObject.data.district}} - Automated Isolation Monitoring - Escalation</b> <br> <b> {{{translate_txt op_true='Has Cough / Soar Throat' op_false='No Cough / Soar Throat' pointer='/dataObject/data/cough'}}}</b> <br> <b> {{{translate_txt op_true='Has Breathing Difficulty' op_false='No Breathing Difficulty' pointer='/dataObject/data/wheezing'}}}</b> <br> <b> {{{translate_txt op_true='Has Chest Pain / Abnormal Sweating' op_false='No Chest Pain / Abnormal Sweating' pointer='/dataObject/data/chestPain'}}}</b> <br> <b> {{{translate_txt op_true='Has Fever' op_false='No Fever' pointer='/dataObject/data/fever'}}}</b> <br> <b> {{{translate_txt op_true='Has more than 4 Loose Motions' op_false='No or less than 4 Loose Motions' pointer='/dataObject/data/motions'}}}</b> <br> <b> {{{translate_txt op_true='Loss of Taste / Smell' op_false='No loss of Taste / Smell' pointer='/dataObject/data/lossOfTaste'}}}</b> <br>\",\"subject\":\"Karnataka - {{dataObject.data.district}} - Automated Isolation Monitoring - Escalation\",\"phone\":\"{{dataObject.data.mobile_number}}\",\"name\":\"{{dataObject.data.patient_name}}\",\"source\":3,\"status\":2,\"priority\": 3, \"tags\" : [\"KA {{dataObject.data.district}} HI\", \"KA Escalation\"], \"custom_fields\":{ {{#if dataObject.data.language}}\"cf_patient_language\":\"{{normalize_init_cap dataObject.data.language}}\", {{/if}} \"cf_delhi_patient_mobile_no\" : {{dataObject.data.mobile_number}},{{#if dataObject.data.district}}\"cf_ka_district\" : \"{{normalize_init_cap dataObject.data.district}}\", {{/if}} {{#if dataObject.data.icmr_id }} \"cf_icmr_id\" : {{dataObject.data.icmr_id}} , {{/if}}  {{#if dataObject.data.address}} \"cf_residential_address\" : \"{{dataObject.data.address}}\" , {{/if}} \"cf_patient_name\" : \"{{dataObject.data.patient_name}}\",\"cf_state\":\"Karnataka\", {{#if dataObject.data.age}} \"cf_patient_age\" : {{dataObject.data.age}}, {{/if}} {{#if dataObject.data.gender}} \"cf_patient_gender\": \"{{{translate_txt op_m='Male' op_f='Female' op_o='Other' op_male='Male' op_female='Female' op_other='Other' pointer='/dataObject/data/gender'}}}\", {{/if}} \"cf_fsm_customer_signature\":\"{{id}}\"}}",
+    "headers": "Authorization:Basic AUTHKEY,Content-Type:application/json",
+    "responseTranslator": "{ \"freshDeskActionCall\" : { \"ticketId\" : \"{{id}}\" } }"
+  },
+  {
+    "templateId": "HI_KA_SYMPTOMS_DOCTOR_EMERGENCY",
+    "name": "HI symptoms doctor emergency follow up FreshDesk Ticket Call",
+    "active": true,
+    "type": "HTTP",
+    "method": "POST",
+    "url": "http://localhost:8080/v1/templates/workflow",
+    "payload": "{\"type\":\"KA Covid Positive\",\"description\":\"<b>Karnataka - {{dataObject.data.district}} - Automated Isolation Monitoring - Emergency</b> <br> <b> {{{translate_txt op_true='Has Cough / Soar Throat' op_false='No Cough / Soar Throat' pointer='/dataObject/data/cough'}}}</b> <br> <b> {{{translate_txt op_true='Has Breathing Difficulty' op_false='No Breathing Difficulty' pointer='/dataObject/data/wheezing'}}}</b> <br> <b> {{{translate_txt op_true='Has Chest Pain / Abnormal Sweating' op_false='No Chest Pain / Abnormal Sweating' pointer='/dataObject/data/chestPain'}}}</b> <br> <b> {{{translate_txt op_true='Has Fever' op_false='No Fever' pointer='/dataObject/data/fever'}}}</b> <br> <b> {{{translate_txt op_true='Has more than 4 Loose Motions' op_false='No or less than 4 Loose Motions' pointer='/dataObject/data/motions'}}}</b> <br> <b> {{{translate_txt op_true='Loss of Taste / Smell' op_false='No loss of Taste / Smell' pointer='/dataObject/data/lossOfTaste'}}}</b> <br>\",\"subject\":\"Karnataka - {{dataObject.data.district}} - Automated Isolation Monitoring - Emergency\",\"phone\":\"{{dataObject.data.mobile_number}}\",\"name\":\"{{dataObject.data.patient_name}}\",\"source\":3,\"status\":2,\"priority\": 4, \"tags\" : [\"KA {{dataObject.data.district}} HI\", \"KA Emergency\"], \"custom_fields\":{ {{#if dataObject.data.language}}\"cf_patient_language\":\"{{normalize_init_cap dataObject.data.language}}\", {{/if}} \"cf_delhi_patient_mobile_no\" : {{dataObject.data.mobile_number}},{{#if dataObject.data.district}}\"cf_ka_district\" : \"{{normalize_init_cap dataObject.data.district}}\", {{/if}} {{#if dataObject.data.icmr_id }} \"cf_icmr_id\" : {{dataObject.data.icmr_id}} , {{/if}}  {{#if dataObject.data.address}} \"cf_residential_address\" : \"{{dataObject.data.address}}\" , {{/if}} \"cf_patient_name\" : \"{{dataObject.data.patient_name}}\",\"cf_state\":\"Karnataka\", {{#if dataObject.data.age}} \"cf_patient_age\" : {{dataObject.data.age}}, {{/if}} {{#if dataObject.data.gender}} \"cf_patient_gender\": \"{{{translate_txt op_m='Male' op_f='Female' op_o='Other' op_male='Male' op_female='Female' op_other='Other' pointer='/dataObject/data/gender'}}}\", {{/if}} \"cf_fsm_customer_signature\":\"{{id}}\"}}",
+    "headers": "Authorization:Basic AUTHKEY,Content-Type:application/json",
+    "responseTranslator": "{ \"freshDeskActionCall\" : { \"ticketId\" : \"{{id}}\" } }"
+  },
+  {
+    "templateId": "FOXTROT_HOME_ISOLATION_DETAILS_KA",
+    "name": "Foxtrot Home Isolation Details Karnataka",
+    "active": true,
+    "type": "HTTP",
+    "method": "POST",
+    "url": "http://localhost:8080/v1/templates/workflow",
+    "payload": "{\"requests\":{\"existingHomeIsolationRecords\":{\"table\":\"statesman\",\"opcode\":\"count\",\"filters\":[{\"operator\":\"in\",\"field\":\"eventData.data.mobile_number\",\"values\":[\"{{dataObject.data.mobile_number}}\"]}]}},\"opcode\":\"multi_query\",\"filters\":[{\"operator\":\"equals\",\"field\":\"eventType\",\"value\":\"STATE_CHANGED\"},{\"operator\":\"equals\",\"field\":\"eventData.newState\",\"value\":\"HOME_ISOLATION\"},{\"operator\":\"equals\",\"field\":\"eventData.workflowTemplateId\",\"value\":\"6294a243-db91-41c1-85ca-f93c3e38d52f\"}]}",
+    "headers": "Authorization:Bearer AUTHKEY,Content-Type:application/json",
+    "responseTranslator": "{\"foxtrotCallDetails\":{\"existingHomeIsolationRecords\":{{responses.existingHomeIsolationRecords.count}} }}"
+  }
+]

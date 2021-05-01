@@ -215,6 +215,10 @@ CALLBACK_TEMPLATE = {
     "HI_KA_IVR_ATTEMPT_3": {
         "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_KA_IVR_ATTEMPT_3') and template_id = '6294a243-db91-41c1-85ca-f93c3e38d52f' ",
         "callback_payload": {"status": "noanswer"}
+    },
+    "HI_KA_IVR_READY_SMS": {
+        "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_KA_IVR_START')",
+        "callback_payload": {"smsNotify": True}
     }
 }
 

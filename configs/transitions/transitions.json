@@ -1,0 +1,405 @@
+[
+  {
+    "id": "KA_HI_DEDUB_CHECK_TO_DUPLICATE_RECORD",
+    "type": "EVALUATED",
+    "fromState": "DEDUP_CHECK",
+    "active": true,
+    "rule": "path.exists(\"$.data.foxtrotCallDetails.existingHomeIsolationRecords\") == true && \"$.data.foxtrotCallDetails.existingHomeIsolationRecords\" > 0 ",
+    "toState": {
+      "name": "DUPLICATE_RECORD",
+      "terminal": true
+    }
+  },
+  {
+    "id": "KA_HI_DEDUP_CHECK_TO_HOME_ISOLATION",
+    "type": "DEFAULT",
+    "fromState": "DEDUP_CHECK",
+    "active": true,
+    "toState": {
+      "name": "HOME_ISOLATION",
+      "terminal": false
+    },
+    "action": "HI_KA_INIT"
+  },
+  {
+    "id": "KA_HI_CALL_ANSWERED_NO_SYMPTOMS",
+    "type": "DEFAULT",
+    "fromState": "HI_CALL_ANSWERED_SAME_SYMPTOMS",
+    "active": true,
+    "toState": {
+      "name": "HOME_ISOLATION",
+      "terminal": false
+    }
+  },
+  {
+    "id": "KA_HI_CALL_ANSWERED_SYMPTOMS",
+    "type": "DEFAULT",
+    "fromState": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+    "active": true,
+    "toState": {
+      "name": "HI_SYMPTOMS_DOCTOR_FOLLOW",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_DOCTOR_FOLLOWUP"
+  },
+  {
+    "id": "KA_HI_CALL_ANSWERED_SYMPTOMS_EMERGENCY",
+    "type": "EVALUATED",
+    "fromState": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+    "active": true,
+    "rule": " \"$.data.symptomsCount\" == 6 || \"$.data.moreThan2NewSymptoms\" == true ",
+    "toState": {
+      "name": "HI_SYMPTOMS_DOCTOR_EMERGENCY",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_DOCTOR_EMERGENCY"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_1_TO_HOME_ISOLATION",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_1",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" <= \"$.data.symptomsCount\"  ",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SAME_SYMPTOMS",
+      "terminal": false
+    },
+    "action": "HI_KA_RESET_UNANSWERED_DAYS"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_1_TO_SYMPTOMS_INCREASE_1",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_1",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" > \"$.data.symptomsCount\"  &&  math.sub(\"$.update.symptomsCount\", \"$.data.symptomsCount\") >= 2",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_INCREASE_MORE_THAN_2_ACTION"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_1_TO_SYMPTOMS_INCREASE_2",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_1",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" > \"$.data.symptomsCount\"  &&  math.sub(\"$.update.symptomsCount\", \"$.data.symptomsCount\") < 2",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_INCREASE_LESS_THAN_2_ACTION"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_1_TO_IVR_ATTEMPT_FAILED_1",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_1",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && ((\"$.update.status\" != \"answer\") || (\"$.update.validInput\" == false)) ",
+    "toState": {
+      "name": "HI_KA_IVR_ATTEMPT_FAILED_1",
+      "terminal": false
+    }
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_1_TO_IVR_ATTEMPT_2",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_1",
+    "active": true,
+    "rule": "path.exists(\"$.update.retryCallAttempt2\") == true && \"$.update.retryCallAttempt2\" == true",
+    "toState": {
+      "name": "HI_KA_IVR_ATTEMPT_2",
+      "terminal": false
+    },
+    "action": "HI_KA_IVR_OUTBOUND_CALL"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_2_TO_HOME_ISOLATION",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_2",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" <= \"$.data.symptomsCount\" ",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SAME_SYMPTOMS",
+      "terminal": false
+    },
+    "action": "HI_KA_RESET_UNANSWERED_DAYS"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_2_TO_SYMPTOMS_INCREAS_1",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_2",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" > \"$.data.symptomsCount\" &&  math.sub(\"$.update.symptomsCount\", \"$.data.symptomsCount\") >= 2",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_INCREASE_MORE_THAN_2_ACTION"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_2_TO_SYMPTOMS_INCREAS_2",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_2",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" > \"$.data.symptomsCount\" &&  math.sub(\"$.update.symptomsCount\", \"$.data.symptomsCount\") < 2",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_INCREASE_LESS_THAN_2_ACTION"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_2_TO_IVR_ATTEMPT_FAILED_2",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_2",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && ((\"$.update.status\" != \"answer\") || (\"$.update.validInput\" == false))",
+    "toState": {
+      "name": "HI_KA_IVR_ATTEMPT_FAILED_2",
+      "terminal": false
+    }
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_2_TO_IVR_ATTEMPT_3",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_2",
+    "active": true,
+    "rule": "path.exists(\"$.update.retryCallAttempt3\") == true && \"$.update.retryCallAttempt3\" == true",
+    "toState": {
+      "name": "HI_KA_IVR_ATTEMPT_3",
+      "terminal": false
+    },
+    "action": "HI_KA_IVR_OUTBOUND_CALL"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_3_TO_HOME_ISOLATION",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_3",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" <= \"$.data.symptomsCount\" ",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SAME_SYMPTOMS",
+      "terminal": false
+    },
+    "action": "HI_KA_RESET_UNANSWERED_DAYS"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_3_TO_SYMPTOMS_INCREASE_1",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_3",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" > \"$.data.symptomsCount\" &&  math.sub(\"$.update.symptomsCount\", \"$.data.symptomsCount\") >= 2",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_INCREASE_MORE_THAN_2_ACTION"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_3_TO_SYMPTOMS_INCREASE_2",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_3",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" > \"$.data.symptomsCount\" &&  math.sub(\"$.update.symptomsCount\", \"$.data.symptomsCount\") < 2",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_INCREASE_LESS_THAN_2_ACTION"
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_3_TO_HI_VOILATION",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_ATTEMPT_3",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && ((\"$.update.status\" != \"answer\") || (\"$.update.validInput\" == false)) ",
+    "toState": {
+      "name": "HI_VOILATION",
+      "terminal": false
+    }
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_FAILED_1_DEFAULT",
+    "type": "DEFAULT",
+    "fromState": "HI_KA_IVR_ATTEMPT_FAILED_1",
+    "active": true,
+    "toState": {
+      "name": "HI_KA_IVR_ATTEMPT_1",
+      "terminal": false
+    }
+  },
+  {
+    "id": "KA_HI_IVR_ATTEMPT_FAILED_2_DEFAULT",
+    "type": "DEFAULT",
+    "fromState": "HI_KA_IVR_ATTEMPT_FAILED_2",
+    "active": true,
+    "toState": {
+      "name": "HI_KA_IVR_ATTEMPT_2",
+      "terminal": false
+    }
+  },
+  {
+    "id": "KA_HI_IVR_START_TO_IVR_ATTEMPT_1",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_START",
+    "active": true,
+    "rule": "path.exists(\"$.update.callTrigger\") == true && \"$.update.callTrigger\" == true",
+    "toState": {
+      "name": "HI_KA_IVR_ATTEMPT_1",
+      "terminal": false
+    },
+    "action": "HI_KA_IVR_OUTBOUND_CALL"
+  },
+  {
+    "id": "KA_HI_IVR_START_TO_CALL_ANSWERED_SAME_SYMPTOMS",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_START",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" <= \"$.data.symptomsCount\" ",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SAME_SYMPTOMS",
+      "terminal": false
+    },
+    "action": "HI_KA_RESET_UNANSWERED_DAYS"
+  },
+  {
+    "id": "KA_HI_IVR_START_TO_SYMPTOMS_INCREASE_1",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_START",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" > \"$.data.symptomsCount\" &&  math.sub(\"$.update.symptomsCount\", \"$.data.symptomsCount\") >= 2",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_INCREASE_MORE_THAN_2_ACTION"
+  },
+  {
+    "id": "KA_HI_IVR_START_TO_SYMPTOMS_INCREASE_2",
+    "type": "EVALUATED",
+    "fromState": "HI_KA_IVR_START",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" > \"$.data.symptomsCount\" &&  math.sub(\"$.update.symptomsCount\", \"$.data.symptomsCount\") < 2",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_INCREASE_LESS_THAN_2_ACTION"
+  },
+  {
+    "id": "KA_HI_SYMPTOMS_DOCTOR_EMERGENCY_1",
+    "type": "EVALUATED",
+    "fromState": "HI_SYMPTOMS_DOCTOR_EMERGENCY",
+    "active": true,
+    "rule": "\"$.update.provider\" == \"freshdesk\" && arr.in(\"$.update.providerTicketHQDoctorRecommendation\", [ \"at_hospital\", \"at_ccc\", \"deceased\", \"wrong_number\" ]) == true ",
+    "toState": {
+      "name": "END",
+      "terminal": true
+    }
+  },
+  {
+    "id": "Ka_HI_SYMPTOMS_DOCTOR_EMERGENCY_2",
+    "type": "EVALUATED",
+    "fromState": "HI_SYMPTOMS_DOCTOR_EMERGENCY",
+    "active": true,
+    "rule": "\"$.update.provider\" == \"freshdesk\" && arr.not_in(\"$.update.providerTicketHQDoctorRecommendation\", [ \"at_hospital\", \"at_ccc\", \"deceased\", \"wrong_number\"  ]) == true  ",
+    "toState": {
+      "name": "HOME_ISOLATION",
+      "terminal": false
+    }
+  },
+  {
+    "id": "KA_HI_SYMPTOMS_DOCTOR_FOLLOW_2",
+    "type": "DEFAULT",
+    "fromState": "HI_SYMPTOMS_DOCTOR_FOLLOW",
+    "active": true,
+    "toState": {
+      "name": "HOME_ISOLATION",
+      "terminal": false
+    }
+  },
+  {
+    "id": "KA_HI_VIOLATION_TO_HOME_ISOLATION_1",
+    "type": "EVALUATED",
+    "fromState": "HI_VOILATION",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" <= \"$.data.symptomsCount\" ",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SAME_SYMPTOMS",
+      "terminal": false
+    },
+    "action": "HI_KA_RESET_UNANSWERED_DAYS"
+  },
+  {
+    "id": "KA_HI_VIOLATION_TO_SYMPTOMS_INCREASE_1",
+    "type": "EVALUATED",
+    "fromState": "HI_VOILATION",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" > \"$.data.symptomsCount\"  &&  math.sub(\"$.update.symptomsCount\", \"$.data.symptomsCount\") >= 2",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_INCREASE_MORE_THAN_2_ACTION"
+  },
+  {
+    "id": "KA_HI_VIOLATION_TO_SYMPTOMS_INCREASE_2",
+    "type": "EVALUATED",
+    "fromState": "HI_VOILATION",
+    "active": true,
+    "rule": "path.exists(\"$.update.status\") == true && \"$.update.status\" == \"answer\" && \"$.update.validInput\" == true && \"$.update.symptomsCount\" > \"$.data.symptomsCount\" && math.sub(\"$.update.symptomsCount\", \"$.data.symptomsCount\") < 2",
+    "toState": {
+      "name": "HI_CALL_ANSWERED_SYMPTOMS_INCREASE",
+      "terminal": false
+    },
+    "action": "HI_KA_SYMPTOMS_INCREASE_LESS_THAN_2_ACTION"
+  },
+  {
+    "id": "KA_HI_VIOLATION_TO_HOME_ISOLATION_2",
+    "type": "EVALUATED",
+    "fromState": "HI_VOILATION",
+    "active": true,
+    "rule": "path.exists(\"$.update.dayEnd\") == true && \"$.update.dayEnd\" == true ",
+    "toState": {
+      "name": "HOME_ISOLATION",
+      "terminal": false
+    },
+    "action": "HI_KA_INCREASE_UNANSWERED_DAYS"
+  },
+  {
+    "id": "KA_HOME_ISOLATION_TO_HI_IVR_START",
+    "type": "EVALUATED",
+    "fromState": "HOME_ISOLATION",
+    "active": true,
+    "rule": "path.exists(\"$.update.now\") == true &&  \"$.data.days\" <= \"$.data.maxDays\"  && \"$.data.endTime\" >= \"$.update.now\" ",
+    "toState": {
+      "name": "HI_KA_IVR_START",
+      "terminal": false
+    },
+    "action": "HI_KA_INCREASE_DAYS"
+  },
+  {
+    "id": "KA_HOME_ISOLATION_TO_END",
+    "type": "EVALUATED",
+    "fromState": "HOME_ISOLATION",
+    "active": true,
+    "rule": "path.exists(\"$.update.now\") == true && ((\"$.data.days\" > \"$.data.maxDays\") || (\"$.data.endTime\" < \"$.update.now\")) ",
+    "toState": {
+      "name": "END",
+      "terminal": true
+    },
+    "action": "INDEX_2_PUBLISH_HI_COMPLETION_KA"
+  },
+  {
+    "id": "KA_HI_START_TO_DEDUP_CHECK",
+    "type": "DEFAULT",
+    "fromState": "START",
+    "active": true,
+    "toState": {
+      "name": "DEDUP_CHECK",
+      "terminal": false
+    },
+    "action": "FOXTROT_HOME_ISOLATION_DETAILS_KA"
+  }
+]

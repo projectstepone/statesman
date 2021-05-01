@@ -51,11 +51,19 @@ public class RoutedAction extends BaseAction<RoutedActionTemplate> {
 
     @Override
     public JsonNode execute(RoutedActionTemplate routedActionTemplate, Workflow workflow) {
+
+        log.debug("Routed Action triggered with Template: {} and Workflow: {}",
+            routedActionTemplate, workflow);
+
         String provider = providerSelector.provider(routedActionTemplate.getUseCase(), routedActionTemplate.getProviderTemplates().keySet(), workflow);
+
         if (Strings.isNullOrEmpty(provider)) {
             throw new StatesmanError("No provider found for action:" + routedActionTemplate.getTemplateId(),
                     ResponseCode.NO_PROVIDER_FOUND);
         }
+
+        log.debug("Selected provider: {}", provider);
+
         return actionExecutor.get().execute(routedActionTemplate.getProviderTemplates().get(provider), workflow)
                 .orElse(NullNode.getInstance());
     }

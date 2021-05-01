@@ -2,7 +2,11 @@ package io.appform.statesman.engine.handlebars;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.LongNode;
+import com.fasterxml.jackson.databind.node.MissingNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.jknack.handlebars.JsonNodeValueResolver;
 import com.google.common.base.Strings;
 import io.dropwizard.jackson.Jackson;
@@ -609,6 +613,56 @@ public class HandleBarsServiceTest {
 
     @Test
     @SneakyThrows
+    public void testTrimDecimalPoints() {
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        Assert.assertEquals("-1", hb.transform("{{trimDecimalPoints value}}", mapper.createObjectNode()));
+        Assert.assertEquals("-1", hb.transform("{{trimDecimalPoints value}}", mapper.createObjectNode().set("value", null)));
+        Assert.assertEquals("-1", hb.transform("{{trimDecimalPoints value}}", mapper.createObjectNode().put("value", "")));
+        Assert.assertEquals("", hb.transform("{{trimDecimalPoints value}}", mapper.createObjectNode().put("value", ".0123")));
+        Assert.assertEquals("0", hb.transform("{{trimDecimalPoints value}}", mapper.createObjectNode().put("value", "0.0123")));
+        Assert.assertEquals("9988771212", hb.transform("{{trimDecimalPoints value}}", mapper.createObjectNode().put("value", "9988771212.0")));
+        Assert.assertEquals("9988771212", hb.transform("{{trimDecimalPoints value}}", mapper.createObjectNode().put("value", "9988771212")));
+    }
+
+    @Test
+    @SneakyThrows
+    public void testTrimDecimalPointsPtr() {
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        Assert.assertEquals("-1", hb.transform("{{trimDecimalPointsPtr pointer='/value/0'}}", null));
+        Assert.assertEquals("-1", hb.transform("{{trimDecimalPointsPtr pointer='/value/0'}}", NullNode.getInstance()));
+        Assert.assertEquals("-1", hb.transform("{{trimDecimalPointsPtr pointer='/value/0'}}", MissingNode.getInstance()));
+        Assert.assertEquals("-1", hb.transform("{{trimDecimalPointsPtr}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("123123"))));
+        Assert.assertEquals("-1", hb.transform("{{trimDecimalPointsPtr pointer=''}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("123123"))));
+        Assert.assertEquals("-1", hb.transform("{{trimDecimalPointsPtr pointer='/value/0'}}", mapper.createObjectNode().set("value", null)));
+        Assert.assertEquals("-1", hb.transform("{{trimDecimalPointsPtr pointer='/value/0'}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add(NullNode.getInstance()))));
+        Assert.assertEquals("-1", hb.transform("{{trimDecimalPointsPtr pointer='/value/0'}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add(""))));
+        Assert.assertEquals("", hb.transform("{{trimDecimalPointsPtr pointer='/value/0'}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add(".0123"))));
+        Assert.assertEquals("0", hb.transform("{{trimDecimalPointsPtr pointer='/value/0'}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("0.0123"))));
+        Assert.assertEquals("9988771212", hb.transform("{{trimDecimalPointsPtr pointer='/value/0'}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("9988771212.0"))));
+        Assert.assertEquals("9988771212", hb.transform("{{trimDecimalPointsPtr pointer='/value/0'}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("9988771212"))));
+    }
+    @Test
+    @SneakyThrows
+    public void testTrimDecimalPointsPtrWithPhone() {
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        Assert.assertEquals("9988771212", hb.transform("{{phone (trimDecimalPointsPtr pointer='/value/0')}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("9988771212.0"))));
+        Assert.assertEquals("9988771212", hb.transform("{{phone (trimDecimalPointsPtr pointer='/value/0')}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("9988771212"))));
+        Assert.assertEquals("9988771212", hb.transform("{{phone (trimDecimalPointsPtr pointer='/value/0')}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("+91-9988771212.0"))));
+        Assert.assertEquals("9988771212", hb.transform("{{phone (trimDecimalPointsPtr pointer='/value/0')}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("+91-9988771212"))));
+        Assert.assertEquals("9988771212", hb.transform("{{phone (trimDecimalPointsPtr pointer='/value/0')}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("09988771212.0"))));
+        Assert.assertEquals("9988771212", hb.transform("{{phone (trimDecimalPointsPtr pointer='/value/0')}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("09988771212"))));
+        Assert.assertEquals("9988771212", hb.transform("{{phone (trimDecimalPointsPtr pointer='/value/0')}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("919988771212.0"))));
+        Assert.assertEquals("9988771212", hb.transform("{{phone (trimDecimalPointsPtr pointer='/value/0')}}", mapper.createObjectNode().set("value", mapper.createArrayNode().add("919988771212"))));
+    }
+
+    @Test
+    @SneakyThrows
     public void testParseHTML2Text() {
         val hb = new HandleBarsService();
         final ObjectMapper mapper = Jackson.newObjectMapper();
@@ -859,5 +913,36 @@ public class HandleBarsServiceTest {
             Assert.assertEquals("Non existant","b", value);
         }
     }
-    
+
+    @Test
+    public void testDateFormat() {
+
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+                .set("dataObject", mapper.createObjectNode()
+                        .set("data", mapper.createObjectNode()
+                                .set("endTime", new LongNode(1618770600000L))));
+
+        final String transformed = hb
+                .transform("{{dateFormat dataObject.data.endTime 'MM/dd/yyyy'}}", node);
+
+        Assert.assertEquals("04/19/2021", transformed);
+    }
+
+    @Test
+    public void testToEpochAndAddDays() {
+
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+                .set("date", new TextNode("15 Apr, 2021"));
+
+        final String transformed = hb
+                .transform("{{add 864000000 (toEpochTime date 'dd MMM, yyyy')}}", node);
+
+        Assert.assertEquals("1619289000000", transformed);
+    }
 }
