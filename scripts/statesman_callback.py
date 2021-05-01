@@ -144,8 +144,10 @@ CALLBACK_TEMPLATE = {
         "callback_payload": {"dayEnd": True}},
     "PLASMA_DONATION_INIT": {
         "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('PLASMA_DONATION_INIT')",
-        "callback_payload": {"retargetDormant": True}}
-
+        "callback_payload": {"retargetDormant": True}},
+    "HI_KA_IVR_READY_SMS": {
+        "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_KA_IVR_START')",
+        "callback_payload": {"smsNotify": True}}
 }
 
 queueLock = threading.Lock()
