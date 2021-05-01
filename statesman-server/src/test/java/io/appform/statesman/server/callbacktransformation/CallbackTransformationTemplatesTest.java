@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.google.common.collect.Lists;
 import io.appform.hope.core.Evaluatable;
 import io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStrategy;
 import io.appform.hope.lang.HopeLangEngine;
@@ -178,25 +179,32 @@ public class CallbackTransformationTemplatesTest {
     @Test
     public void testSingleLineTextHandlebarHelper() {
 
-        final String singleLineText = "This\t\t\t\t\n\n\n\nshould\n\tbe \r\n\r\ra single\t\t\nline\t\n\ntext.";
         final String expectedLine = "This should be a single line text.";
+
+        final List<String> singleLineTexts = Lists.newArrayList(
+                "This\t\t\t\t\n\n\n\nshould\n\tbe\r\n\r\ra\tsingle\t\t\nline\rtext.",
+                "This\tshould\nbe\ra\tsingle\t\t\nline\rtext.",
+                "This\n\tshould\r\tbe\r\n\r\ra\tsingle\t\t\nline\rtext."
+        );
 
         val hb = new HandleBarsService();
         final ObjectMapper mapper = Jackson.newObjectMapper();
 
-        val node = mapper.createObjectNode()
-                .set("dataObject", mapper.createObjectNode()
-                        .set("data", mapper.createObjectNode()
-                                .set("text", new TextNode(singleLineText))
-                        )
-                );
+        for (String singleLineText : singleLineTexts) {
+            val node = mapper.createObjectNode()
+                    .set("dataObject", mapper.createObjectNode()
+                            .set("data", mapper.createObjectNode()
+                                    .set("text", new TextNode(singleLineText))
+                            )
+                    );
 
-        final String transformedLine = hb.transform("{{singleLineText dataObject.data.text}}", node);
+            final String transformedLine = hb.transform("{{singleLineText dataObject.data.text}}", node);
 
-        Assert.assertNotNull(transformedLine);
-        Assert.assertFalse(transformedLine.contains("\t"));
-        Assert.assertFalse(transformedLine.contains("\n"));
-        Assert.assertFalse(transformedLine.contains("\r"));
-        Assert.assertEquals(expectedLine, transformedLine);
+            Assert.assertNotNull(transformedLine);
+            Assert.assertFalse(transformedLine.contains("\t"));
+            Assert.assertFalse(transformedLine.contains("\n"));
+            Assert.assertFalse(transformedLine.contains("\r"));
+            Assert.assertEquals(expectedLine, transformedLine);
+        }
     }
 }

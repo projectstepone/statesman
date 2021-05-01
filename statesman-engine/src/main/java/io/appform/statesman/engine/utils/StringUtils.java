@@ -40,6 +40,6 @@ public class StringUtils {
         if(Strings.isNullOrEmpty(s)) {
             return "";
         }
-        return s.replaceAll("\\s\\s+", " ");
+        return s.replaceAll("\\s\\s*", " ");
     }
 }
