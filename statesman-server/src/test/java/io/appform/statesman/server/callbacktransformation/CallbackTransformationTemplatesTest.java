@@ -178,7 +178,7 @@ public class CallbackTransformationTemplatesTest {
     @Test
     public void testSingleLineTextHandlebarHelper() {
 
-        final String singleLineText = "This\t\t\t\t\n\n\n\nshould\n\tbe a single\t\t\nline\t\n\ntext.";
+        final String singleLineText = "This\t\t\t\t\n\n\n\nshould\n\tbe \r\n\r\ra single\t\t\nline\t\n\ntext.";
         final String expectedLine = "This should be a single line text.";
 
         val hb = new HandleBarsService();
