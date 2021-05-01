@@ -528,7 +528,7 @@ public class HandleBarsServiceTest {
         val hb = new HandleBarsService();
         val node = mapper.readTree(payload);
         val translatedPayload = mapper.readTree(hb.transform(template, node));
-        Assert.assertTrue(translatedPayload.get("providerTicketDoctorNotes").asText().equals("fatigue since 2 days.  mild sore throat.  mild headache.  No other symptoms  RED FLAGS EXPLAINED  Home isolation Adviced."));
+        Assert.assertTrue(translatedPayload.get("providerTicketDoctorNotes").asText().equals("fatigue since 2 days. mild sore throat. mild headache. No other symptoms RED FLAGS EXPLAINED Home isolation Adviced."));
 
     }
 
