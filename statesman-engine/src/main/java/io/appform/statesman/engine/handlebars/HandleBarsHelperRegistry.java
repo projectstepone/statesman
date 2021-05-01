@@ -411,7 +411,7 @@ public class HandleBarsHelperRegistry {
 
     private void registerStrSingleLineText() {
         handlebars.registerHelper("singleLineText",
-                                  (String value, Options options) -> StringUtils.removeNewLine(value));
+                                  (String value, Options options) -> StringUtils.removeNewLineAndTabs(value));
     }
 
     private void registerStrNormalizeUpper() {
