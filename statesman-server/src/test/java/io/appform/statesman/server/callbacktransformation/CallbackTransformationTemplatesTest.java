@@ -178,7 +178,8 @@ public class CallbackTransformationTemplatesTest {
     @Test
     public void testSingleLineTextHandlebarHelper() {
 
-        final String singleLineText = "This\t\t\t\t\n\n\n\nshould\n\tbe a single\t\t\nline\t\n\ntext.\r\r\r\r\n\n\t\t";
+        final String singleLineText = "This\t\t\t\t\n\n\n\nshould\n\tbe a single\t\t\nline\t\n\ntext.";
+        final String expectedLine = "This should be a single line text.";
 
         val hb = new HandleBarsService();
         final ObjectMapper mapper = Jackson.newObjectMapper();
@@ -196,5 +197,6 @@ public class CallbackTransformationTemplatesTest {
         Assert.assertFalse(transformedLine.contains("\t"));
         Assert.assertFalse(transformedLine.contains("\n"));
         Assert.assertFalse(transformedLine.contains("\r"));
+        Assert.assertEquals(expectedLine, transformedLine);
     }
 }
