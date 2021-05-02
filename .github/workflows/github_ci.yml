@@ -16,5 +16,5 @@ jobs:
                   java-version: 1.8
 
             - name: Running the tests
-              run: mvn test
+              run: mvn test -Dmaven.test.failure.ignore=false
               continue-on-error: false
