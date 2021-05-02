@@ -12,7 +12,7 @@
     <artifactId>statesman-engine</artifactId>
 
     <properties>
-        <hope.version>1.0.8</hope.version>
+        <hope.version>1.0.9</hope.version>
         <handlebars.version>4.1.2</handlebars.version>
         <jsoup.version>1.13.1</jsoup.version>
     </properties>
