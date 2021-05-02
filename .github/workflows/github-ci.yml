@@ -3,6 +3,9 @@ on:
         # Sequence of patterns matched against refs/heads
         branches-ignore:
             - 'master'
+    pull_request:
+        branches-ignore:
+            - 'master'
 jobs:
     build:
         runs-on: ubuntu-latest
