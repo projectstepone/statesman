@@ -943,6 +943,6 @@ public class HandleBarsServiceTest {
         final String transformed = hb
                 .transform("{{add 864000000 (toEpochTime date 'dd MMM, yyyy')}}", node);
 
-        Assert.assertEquals("1619289000000", transformed);
+        Assert.assertEquals("1619289000000 ", transformed);
     }
 }
