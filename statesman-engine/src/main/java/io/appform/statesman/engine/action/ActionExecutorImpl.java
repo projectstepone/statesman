@@ -3,6 +3,8 @@ package io.appform.statesman.engine.action;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.appform.functionmetrics.MetricTerm;
+import io.appform.functionmetrics.MonitoredFunction;
 import io.appform.statesman.engine.ActionTemplateStore;
 import io.appform.statesman.model.Workflow;
 import io.appform.statesman.model.action.template.ActionTemplate;
@@ -26,7 +28,8 @@ public class ActionExecutorImpl implements ActionExecutor {
     }
 
     @Override
-    public Optional<JsonNode> execute(String actionId, Workflow workflow) {
+    @MonitoredFunction
+    public Optional<JsonNode> execute(@MetricTerm String actionId, Workflow workflow) {
         return actionTemplateStore.get().get(actionId)
                 .map(actionTemplate -> execute(workflow, actionTemplate));
     }
