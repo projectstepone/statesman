@@ -1,6 +1,5 @@
 on:
     push:
-        # Sequence of patterns matched against refs/heads
         branches-ignore:
             - 'master'
     pull_request:
@@ -11,17 +10,17 @@ jobs:
         runs-on: ubuntu-latest
         continue-on-error: false
         steps:
-            -   name: Checking out code base
-                uses: actions/checkout@v2
+            - name: Checking out code base
+              uses: actions/checkout@v2
 
-            -   name: Set up JDK 1.8
-                uses: actions/setup-java@v1
-                with:
-                    java-version: 1.8
+            - name: Set up JDK 1.8
+              uses: actions/setup-java@v1
+              with:
+                java-version: 1.8
 
-            -   name: Building package
-                run: mvn clean package -U -DskipTests
-                continue-on-error: false
+            - name: Building package
+              run: mvn clean package -U -DskipTests
+              continue-on-error: false
 
     test:
         runs-on: ubuntu-latest
@@ -33,7 +32,7 @@ jobs:
             - name: Set up JDK 1.8
               uses: actions/setup-java@v1
               with:
-                  java-version: 1.8
+                java-version: 1.8
 
             - name: Running the tests
               run: mvn test -Dmaven.test.failure.ignore=false
