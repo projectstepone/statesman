@@ -6,7 +6,7 @@ on:
         branches:
             - 'master'
 jobs:
-    test_package:
+    test_and_package:
         runs-on: ubuntu-latest
         continue-on-error: false
         steps:
