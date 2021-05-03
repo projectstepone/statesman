@@ -179,7 +179,7 @@ public class CallbackTransformationTemplatesTest {
     @Test
     public void testSingleLineTextHandlebarHelper() {
 
-        final String expectedLine = "This should be a single line text. ";
+        final String expectedLine = "This should be a single line text.";
 
         final List<String> singleLineTexts = Lists.newArrayList(
                 "This\t\t\t\t\n\n\n\nshould\n\tbe\r\n\r\ra\tsingle\t\t\nline\rtext.",
