@@ -103,8 +103,8 @@ public class HandleBarsHelperRegistry {
         registerCountMatchStr();
         registerTrimDecimalPoints();
         registerTrimDecimalPointsPtr();
-        registerIsNumber();
-        registerIsText();
+        registerIsDigits();
+        registerNonDigits();
     }
 
     private Object compareGte(int lhs) {
@@ -1091,12 +1091,12 @@ public class HandleBarsHelperRegistry {
         });
     }
 
-    private void registerIsNumber() {
+    private void registerIsDigits() {
         handlebars.registerHelper("isDigits",
             (String str, Options options) -> NumberUtils.isDigits(str));
     }
 
-    private void registerIsText() {
+    private void registerNonDigits() {
         handlebars.registerHelper("nonDigits",
             (String str, Options options) -> !NumberUtils.isDigits(str));
     }

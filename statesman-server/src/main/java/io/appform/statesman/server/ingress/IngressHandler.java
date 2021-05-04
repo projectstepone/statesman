@@ -1,8 +1,10 @@
 package io.appform.statesman.server.ingress;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.jknack.handlebars.JsonNodeValueResolver;
@@ -12,12 +14,18 @@ import io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStr
 import io.appform.hope.lang.HopeLangEngine;
 import io.appform.statesman.engine.StateTransitionEngine;
 import io.appform.statesman.engine.WorkflowProvider;
+import io.appform.statesman.engine.action.ActionExecutor;
 import io.appform.statesman.engine.handlebars.HandleBarsService;
 import io.appform.statesman.engine.observer.ObservableEventBus;
 import io.appform.statesman.engine.observer.events.IngressCallbackEvent;
 import io.appform.statesman.engine.observer.events.StateTransitionEvent;
 import io.appform.statesman.engine.utils.StringUtils;
-import io.appform.statesman.model.*;
+import io.appform.statesman.model.AppliedTransitions;
+import io.appform.statesman.model.Constants;
+import io.appform.statesman.model.DataObject;
+import io.appform.statesman.model.DataUpdate;
+import io.appform.statesman.model.Workflow;
+import io.appform.statesman.model.WorkflowTemplate;
 import io.appform.statesman.model.dataaction.impl.MergeDataAction;
 import io.appform.statesman.server.callbacktransformation.TransformationTemplate;
 import io.appform.statesman.server.callbacktransformation.TransformationTemplateVisitor;
@@ -29,19 +37,18 @@ import io.appform.statesman.server.droppedcalldetector.DroppedCallDetector;
 import io.appform.statesman.server.evaluator.WorkflowTemplateSelector;
 import io.appform.statesman.server.idextractor.IdExtractor;
 import io.appform.statesman.server.requests.IngressCallback;
+import java.io.IOException;
+import java.util.Date;
+import java.util.UUID;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import javax.ws.rs.core.MultivaluedMap;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import lombok.var;
 import org.glassfish.jersey.internal.util.collection.ImmutableMultivaluedMap;
 import org.glassfish.jersey.uri.UriComponent;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import javax.ws.rs.core.MultivaluedMap;
-import java.io.IOException;
-import java.util.Date;
-import java.util.UUID;
 
 /**
  *
@@ -61,6 +68,7 @@ public class IngressHandler {
     private final Provider<WorkflowProvider> workflowProvider;
     private final Provider<WorkflowTemplateSelector> templateSelector;
     private final Provider<ObservableEventBus> eventBus;
+    private final Provider<ActionExecutor> actionExecutor;
     private final DroppedCallDetector droppedCallDetector;
     private final IdExtractor idExtractor;
     private final HopeLangEngine hopeLangEngine;
@@ -68,14 +76,15 @@ public class IngressHandler {
 
     @Inject
     public IngressHandler(
-            CallbackTemplateProvider callbackTemplateProvider,
-            final ObjectMapper mapper,
-            HandleBarsService handleBarsService,
-            Provider<StateTransitionEngine> engine,
-            Provider<WorkflowProvider> workflowProvider,
-            Provider<WorkflowTemplateSelector> templateSelector,
-            Provider<ObservableEventBus> eventBus,
-            DroppedCallDetector droppedCallDetector, IdExtractor idExtractor) {
+        CallbackTemplateProvider callbackTemplateProvider,
+        final ObjectMapper mapper,
+        HandleBarsService handleBarsService,
+        Provider<StateTransitionEngine> engine,
+        Provider<WorkflowProvider> workflowProvider,
+        Provider<WorkflowTemplateSelector> templateSelector,
+        Provider<ObservableEventBus> eventBus,
+        Provider<ActionExecutor> actionExecutor,
+        DroppedCallDetector droppedCallDetector, IdExtractor idExtractor) {
         this.callbackTemplateProvider = callbackTemplateProvider;
         this.mapper = mapper;
         this.handleBarsService = handleBarsService;
@@ -83,6 +92,7 @@ public class IngressHandler {
         this.workflowProvider = workflowProvider;
         this.templateSelector = templateSelector;
         this.eventBus = eventBus;
+        this.actionExecutor = actionExecutor;
         this.droppedCallDetector = droppedCallDetector;
         this.idExtractor = idExtractor;
         this.hopeLangEngine = HopeLangEngine.builder()
@@ -165,6 +175,131 @@ public class IngressHandler {
         ingressCallbackEvent.setWorkflowId(dataUpdate.getWorkflowId());
         eventBus.get().publish(ingressCallbackEvent);
         return true;
+    }
+
+    public boolean invokeEngineForMessageProvider(String messageProvider, IngressCallback ingressCallback) throws IOException {
+
+        log.debug("Processing message handler callback: {}", ingressCallback);
+
+        val queryParams = parseQueryParams(ingressCallback);
+        val node = mapper.valueToTree(queryParams);
+        providerSpecificTranslation(node, messageProvider);
+        log.info("Processing node: {}", node);
+
+        String tmplLookupKey = messageProvider + "_message";
+        val transformationTemplate = getIngressTransformationTemplate(tmplLookupKey);
+
+        val ingressCallbackEvent = IngressCallbackEvent.builder()
+            .callbackType("Message")
+            .ivrProvider(messageProvider)
+            .translatorId(tmplLookupKey)
+            .queryString(ingressCallback.getQueryString())
+            .bodyString(jsonString(ingressCallback.getBody()))
+            .build();
+
+        if (null == transformationTemplate) {
+            log.error("No matching translation template found for provider: {}", tmplLookupKey);
+            ingressCallbackEvent.setErrorMessage(TRANSLATOR_NOT_FOUND);
+            eventBus.get().publish(ingressCallbackEvent);
+            return false;
+        }
+
+        val update = translateIvrPaylaod(transformationTemplate, tmplLookupKey, node);
+
+        if (update == null) {
+            ingressCallbackEvent.setErrorMessage(COULD_NOT_TRANSLATE);
+            eventBus.get().publish(ingressCallbackEvent);
+            return false;
+        }
+
+        String wfId;
+        try {
+            wfId = extractWorkflowId(node, transformationTemplate);
+        }
+        catch (IllegalStateException e) {
+            log.debug("Got illegal state exception. Mostly fql failure context: "+mapper.writeValueAsString(update), e);
+            ingressCallbackEvent.setErrorMessage(FQL_ERROR);
+            eventBus.get().publish(ingressCallbackEvent);
+            return false;
+        }
+
+        val wfp = this.workflowProvider.get();
+        Workflow workflow = wfp.getWorkflow(wfId)
+            .orElse(null);
+
+        WorkflowTemplate wfTemplate;
+
+        if(workflow == null || workflow.getDataObject().getCurrentState().isTerminal()) {
+
+            if ( "covidhelp".equalsIgnoreCase(update.get(Constants.MESSAGE).asText())) {
+
+                ((ObjectNode)update).put("flowType", "auto_triage");
+
+                wfTemplate = templateSelector.get()
+                    .determineTemplate(update)
+                    .orElse(null);
+
+                if (null == wfTemplate) {
+                    log.warn("No matching workflow template found for provider: {}, context: {}", messageProvider, mapper.writeValueAsString(update));
+                    ingressCallbackEvent.setErrorMessage(WORKFLOW_TEMPLATE_NOT_FOUND);
+                    eventBus.get().publish(ingressCallbackEvent);
+                    return false;
+                }
+
+                val date = new Date();
+                val dataObject = new DataObject(mapper.createObjectNode(), wfTemplate.getStartState(), date, date);
+
+                while (wfp.workflowExists(wfId)) {
+                    wfId = UUID.randomUUID().toString();
+                }
+                workflow = new Workflow(wfId, wfTemplate.getId(), dataObject, new Date(), new Date());
+                wfp.saveWorkflow(workflow);
+            } else {
+                actionExecutor.get().execute("WHATSAPP_HELPLINE_DEFAULT_RESPONSE", getWorkflowWithMobileNumber(update.get("mobile_number").asText()));
+                return true;
+            }
+        } else {
+            val wfTemplateOptional = wfp.getTemplate(workflow.getTemplateId());
+            if (!wfTemplateOptional.isPresent()) {
+                log.warn("No matching workflow template found for provider: {}, context: {}", messageProvider, mapper.writeValueAsString(update));
+                ingressCallbackEvent.setErrorMessage(WORKFLOW_TEMPLATE_NOT_FOUND);
+                eventBus.get().publish(ingressCallbackEvent);
+                return false;
+            }
+            wfTemplate = wfTemplateOptional.get();
+        }
+
+        final DataUpdate dataUpdate = new DataUpdate(wfId, update, new MergeDataAction());
+        eventBus.get().publish(new StateTransitionEvent(wfTemplate, workflow, dataUpdate, null, null));
+
+        final AppliedTransitions appliedTransitions = engine.get().handle(dataUpdate);
+        log.debug("Workflow: {} with template: {} went through transitions: {}",
+            wfId, wfTemplate.getId(), appliedTransitions.getTransitions());
+
+        ingressCallbackEvent.setSmEngineTriggered(true);
+        ingressCallbackEvent.setWorkflowId(dataUpdate.getWorkflowId());
+        eventBus.get().publish(ingressCallbackEvent);
+
+        return true;
+    }
+
+    private Workflow getWorkflowWithMobileNumber(String mobileNumber) {
+        return Workflow.builder()
+            .dataObject(
+                DataObject.builder()
+                    .data(mapper.createObjectNode()
+                    .set("mobile_number", TextNode.valueOf(mobileNumber))
+                ).build()
+            ).build();
+    }
+
+    private void providerSpecificTranslation(JsonNode node, String messageProvider) throws JsonProcessingException {
+        if ("whatsapp".equalsIgnoreCase(messageProvider)) {
+            final JsonNode messageNode = mapper
+                .readTree(node.get(Constants.MESSAGE).get(0).asText())
+                .get(0);
+            ((ObjectNode) node).set(Constants.MESSAGE, messageNode);
+        }
     }
 
     public boolean invokeEngineForMultiStep(String ivrProvider, IngressCallback ingressCallback) throws IOException {
@@ -507,8 +642,11 @@ public class IngressHandler {
     }
 
     private static MultivaluedMap<String, String> parseQueryParams(IngressCallback ingressCallback) {
+        String queryString = ingressCallback.getQueryString().startsWith("?")
+            ? ingressCallback.getQueryString().substring(1)
+            : ingressCallback.getQueryString();
         return new ImmutableMultivaluedMap<>(
-                UriComponent.decodeQuery(ingressCallback.getQueryString(), true));
+                UriComponent.decodeQuery(queryString, true));
     }
 
     private static String templateLookupKey(String ivrProvider, JsonNode node) {
