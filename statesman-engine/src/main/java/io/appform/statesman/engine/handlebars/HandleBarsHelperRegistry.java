@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.internal.lang3.math.NumberUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import io.appform.statesman.engine.utils.StringUtils;
@@ -102,6 +103,8 @@ public class HandleBarsHelperRegistry {
         registerCountMatchStr();
         registerTrimDecimalPoints();
         registerTrimDecimalPointsPtr();
+        registerIsNumber();
+        registerIsText();
     }
 
     private Object compareGte(int lhs) {
@@ -1086,6 +1089,16 @@ public class HandleBarsHelperRegistry {
                                                                  .put("seconds", now.getSecond())));
             }
         });
+    }
+
+    private void registerIsNumber() {
+        handlebars.registerHelper("isDigits",
+            (String str, Options options) -> NumberUtils.isDigits(str));
+    }
+
+    private void registerIsText() {
+        handlebars.registerHelper("nonDigits",
+            (String str, Options options) -> !NumberUtils.isDigits(str));
     }
 
     private int extractOptionValue(JsonNode keyNode, int defaultValue) {

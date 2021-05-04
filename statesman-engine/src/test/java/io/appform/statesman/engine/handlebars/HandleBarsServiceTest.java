@@ -945,4 +945,48 @@ public class HandleBarsServiceTest {
 
         Assert.assertEquals("1619289000000", transformed);
     }
+
+    @Test
+    public void testIsDigits() {
+
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        final String numberTransformed = hb
+            .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
+                mapper.createObjectNode().set("body", new TextNode("10")));
+        Assert.assertEquals("10", numberTransformed);
+
+        final String decimalTransformed = hb
+            .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
+                mapper.createObjectNode().set("body", new TextNode("10.0")));
+        Assert.assertEquals("", decimalTransformed);
+
+        final String negativeTransformed = hb
+            .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
+                mapper.createObjectNode().set("body", new TextNode("-10")));
+        Assert.assertEquals("", negativeTransformed);
+
+        final String textTransformed = hb
+            .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
+                mapper.createObjectNode().set("body", new TextNode("Hi")));
+        Assert.assertEquals("", textTransformed);
+    }
+
+    @Test
+    public void testNonDigits() {
+
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        final String numberTransformed = hb
+            .transform("{{#if (nonDigits body)}}{{body}}{{/if}}",
+                mapper.createObjectNode().set("body", new TextNode("10")));
+        Assert.assertEquals("", numberTransformed);
+
+        final String textTransformed = hb
+            .transform("{{#if (nonDigits body)}}{{body}}{{/if}}",
+                mapper.createObjectNode().set("body", new TextNode("Hi")));
+        Assert.assertEquals("Hi", textTransformed);
+    }
 }
