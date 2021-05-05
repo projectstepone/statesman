@@ -945,4 +945,48 @@ public class HandleBarsServiceTest {
 
         Assert.assertEquals("1619289000000", transformed);
     }
+
+    @Test
+    public void testIsDigits() {
+
+        val hb = new HandleBarsService();
+        val mapper = Jackson.newObjectMapper();
+
+        val numberTransformed = hb
+            .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
+                mapper.createObjectNode().set("body", new TextNode("10")));
+        Assert.assertEquals("10", numberTransformed);
+
+        val decimalTransformed = hb
+            .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
+                mapper.createObjectNode().set("body", new TextNode("10.0")));
+        Assert.assertEquals("", decimalTransformed);
+
+        val negativeTransformed = hb
+            .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
+                mapper.createObjectNode().set("body", new TextNode("-10")));
+        Assert.assertEquals("", negativeTransformed);
+
+        val textTransformed = hb
+            .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
+                mapper.createObjectNode().set("body", new TextNode("Hi")));
+        Assert.assertEquals("", textTransformed);
+    }
+
+    @Test
+    public void testValueFromJsonString() {
+
+        val hb = new HandleBarsService();
+        val mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+            .set("message", mapper.createArrayNode().add(TextNode.valueOf(
+                "[{\"from\":\"919988776655\",\"id\":\"893649f5-9cf9-4422-87d1-a9c4258045e7\",\"timestamp\":\"1620140858\",\"type\":\"text\",\"text\":{\"body\":\"Test\"},\"profile\":{\"name\":\"Tester User\"},\"wa_number\":\"919745697456\"}]")));
+
+        val transformed = hb.transform("{{valueFromJsonString message/0 pointer='/0/id'}}", node);
+        Assert.assertEquals("893649f5-9cf9-4422-87d1-a9c4258045e7", transformed);
+
+        val incorrectPointer = hb.transform("{{valueFromJsonString message/0 pointer='/1/id'}}", node);
+        Assert.assertEquals("", incorrectPointer);
+    }
 }

@@ -10,6 +10,7 @@ import io.appform.statesman.model.FoxtrotClientConfig;
 import io.appform.statesman.publisher.http.HttpClient;
 import io.appform.statesman.publisher.http.HttpUtil;
 import io.appform.statesman.server.callbacktransformation.TransformationTemplate;
+import javax.ws.rs.NotFoundException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -70,7 +71,7 @@ public class FqlIdExtractor implements IdExtractor {
             val responseCode = response.code();
             if(responseCode == HttpStatus.NO_CONTENT_204) {
                 log.debug("No results found for query: {}",  fqlQuery);
-                throw new IllegalStateException("No record found for the given query");
+                throw new NotFoundException("No record found for the given query");
             }
             if(responseCode != HttpStatus.OK_200) {
                 log.error("Error running fql query: {}. Status: {}", fqlQuery, responseCode);

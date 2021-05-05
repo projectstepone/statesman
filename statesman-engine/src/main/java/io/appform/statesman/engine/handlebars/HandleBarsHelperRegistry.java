@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.internal.lang3.math.NumberUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import io.appform.statesman.engine.utils.StringUtils;
@@ -102,6 +103,8 @@ public class HandleBarsHelperRegistry {
         registerCountMatchStr();
         registerTrimDecimalPoints();
         registerTrimDecimalPointsPtr();
+        registerIsDigits();
+        registerValueFromJsonString();
     }
 
     private Object compareGte(int lhs) {
@@ -1085,6 +1088,31 @@ public class HandleBarsHelperRegistry {
                                                                  .put("minutes", now.getMinute())
                                                                  .put("seconds", now.getSecond())));
             }
+        });
+    }
+
+    private void registerIsDigits() {
+        handlebars.registerHelper("isDigits",
+            (String str, Options options) -> NumberUtils.isDigits(str));
+    }
+
+    private void registerValueFromJsonString() {
+        handlebars.registerHelper("valueFromJsonString", (String jsonString, Options options) -> {
+            try {
+                val pointer = (String) options.hash(POINTER);
+                if (!Strings.isNullOrEmpty(pointer) && !Strings.isNullOrEmpty(jsonString)) {
+                    val node = MAPPER.readTree(jsonString);
+                    val valueNode = node.at(pointer);
+                    if (Objects.isNull(valueNode) || valueNode.isNull()) {
+                        return "";
+                    } else {
+                        return valueNode.asText();
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Exception occurred while removing decimal points", e);
+            }
+            return "";
         });
     }
 

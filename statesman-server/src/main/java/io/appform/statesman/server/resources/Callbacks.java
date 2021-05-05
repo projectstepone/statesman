@@ -53,6 +53,22 @@ public class Callbacks {
     }
 
     @POST
+    @Path("/ingress/message/{messageProvider}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @SneakyThrows
+    public Response providerMessageHandlerIngressCallback(
+        @PathParam("messageProvider") final String messageProvider, final IngressCallback ingressCallback) {
+        final boolean status = ingressHandler.get()
+            .invokeEngineForMessageProvider(messageProvider, ingressCallback);
+        if(!status) {
+            log.warn("Ignored ingress provider {} callback: {}", messageProvider, ingressCallback);
+        }
+        return Response.ok()
+            .entity(ImmutableMap.of("success", status))
+            .build();
+    }
+
+    @POST
     @Path("/ingress/step/{ingressProvider}")
     @Consumes(MediaType.APPLICATION_JSON)
     @SneakyThrows
