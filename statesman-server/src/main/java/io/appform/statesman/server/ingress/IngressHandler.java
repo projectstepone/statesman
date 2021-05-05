@@ -55,10 +55,10 @@ import org.glassfish.jersey.uri.UriComponent;
 @Singleton
 public class IngressHandler {
 
-    private final String TRANSLATOR_NOT_FOUND = "TRANSLATOR_NOT_FOUND";
-    private final String COULD_NOT_TRANSLATE = "COULD_NOT_TRANSLATE";
-    private final String WORKFLOW_TEMPLATE_NOT_FOUND = "WORKFLOW_TEMPLATE_NOT_FOUND";
-    private final String FQL_ERROR = "FQL_ERROR";
+    private static final String TRANSLATOR_NOT_FOUND = "TRANSLATOR_NOT_FOUND";
+    private static final String COULD_NOT_TRANSLATE = "COULD_NOT_TRANSLATE";
+    private static final String WORKFLOW_TEMPLATE_NOT_FOUND = "WORKFLOW_TEMPLATE_NOT_FOUND";
+    private static final String FQL_ERROR = "FQL_ERROR";
     private final CallbackTemplateProvider callbackTemplateProvider;
     private final ObjectMapper mapper;
     private final HandleBarsService handleBarsService;
@@ -66,7 +66,6 @@ public class IngressHandler {
     private final Provider<WorkflowProvider> workflowProvider;
     private final Provider<WorkflowTemplateSelector> templateSelector;
     private final Provider<ObservableEventBus> eventBus;
-    private final Provider<ActionExecutor> actionExecutor;
     private final DroppedCallDetector droppedCallDetector;
     private final IdExtractor idExtractor;
     private final HopeLangEngine hopeLangEngine;
@@ -81,7 +80,6 @@ public class IngressHandler {
         Provider<WorkflowProvider> workflowProvider,
         Provider<WorkflowTemplateSelector> templateSelector,
         Provider<ObservableEventBus> eventBus,
-        Provider<ActionExecutor> actionExecutor,
         DroppedCallDetector droppedCallDetector, IdExtractor idExtractor) {
         this.callbackTemplateProvider = callbackTemplateProvider;
         this.mapper = mapper;
@@ -90,7 +88,6 @@ public class IngressHandler {
         this.workflowProvider = workflowProvider;
         this.templateSelector = templateSelector;
         this.eventBus = eventBus;
-        this.actionExecutor = actionExecutor;
         this.droppedCallDetector = droppedCallDetector;
         this.idExtractor = idExtractor;
         this.hopeLangEngine = HopeLangEngine.builder()
