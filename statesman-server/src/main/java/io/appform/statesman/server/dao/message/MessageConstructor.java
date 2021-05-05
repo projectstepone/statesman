@@ -11,6 +11,10 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 
+/**
+ * This class is mainly responsible for constructing the message for a given
+ * message id,language and state from the config defined
+ */
 @Slf4j
 public class MessageConstructor implements IMessageConstructor {
 
@@ -23,6 +27,32 @@ public class MessageConstructor implements IMessageConstructor {
     }
 
 
+    /**
+     *
+     * @param messageId : id for the message config
+     * @param language : language in which the message needs to be build
+     * @param state : state for which the message is intended
+     * Example Json :
+     *{
+     *    "messageId":"welcome",
+     *    "messageBody":{
+     *       "default":{
+     *          "KA":"msg1",
+     *          "default":"msg2"
+     *       },
+     *       "hindi":{
+     *          "RAJ":"msg3",
+     *          "UP":"msg4",
+     *          "default":"msg5"
+     *       },
+     *       "marathi":{
+     *          "MAH":"msg6",
+     *          "default":"msg7"
+     *       }
+     *    }
+     * }
+     * @return : Completely constructed message
+     */
     @Override
     public String constructMessage(String messageId, String language, String state) {
 

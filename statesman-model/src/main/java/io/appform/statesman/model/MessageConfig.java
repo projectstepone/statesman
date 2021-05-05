@@ -8,14 +8,17 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * REST entity for posting the message config resource to the API
+ */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class MessageConfig {
     @NotNull
-    String messageId;
+    private String messageId;
 
     @NotNull
-    JsonNode messageBody;
+    private JsonNode messageBody;
 }

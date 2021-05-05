@@ -18,6 +18,9 @@ import javax.inject.Singleton;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Responsible for storing and accessing message config from cache backed by DB
+ */
 @Slf4j
 @Singleton
 public class MessageConfigStoreCommand implements MessageConfigStore {
@@ -30,8 +33,8 @@ public class MessageConfigStoreCommand implements MessageConfigStore {
         this.messageLookupDao = messageLookupDao;
         messageConfigCache = Caffeine.newBuilder()
                 .maximumSize(1_000)
-                .expireAfterWrite(300, TimeUnit.SECONDS)
-                .refreshAfterWrite(60, TimeUnit.SECONDS)
+                .expireAfterWrite(120, TimeUnit.MINUTES)
+                .refreshAfterWrite(15, TimeUnit.MINUTES)
                 .build(key -> {
                     log.debug("Loading data for action for key: {}", key);
                     return getFromDb(key);
