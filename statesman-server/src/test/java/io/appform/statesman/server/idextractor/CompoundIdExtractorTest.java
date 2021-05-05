@@ -12,6 +12,7 @@ import io.appform.statesman.publisher.http.HttpClient;
 import io.appform.statesman.publisher.http.HttpUtil;
 import io.appform.statesman.server.callbacktransformation.TranslationTemplateType;
 import io.appform.statesman.server.callbacktransformation.impl.OneShotTransformationTemplate;
+import javax.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Assert;
@@ -83,7 +84,7 @@ public class CompoundIdExtractorTest {
             idExtractor.extractId(oneShotTemplate, root2);
             Assert.fail("Should have thrown exception");
         } catch (Exception e) {
-            Assert.assertEquals(IllegalStateException.class, e.getClass());
+            Assert.assertEquals(NotFoundException.class, e.getClass());
         }
     }
 
