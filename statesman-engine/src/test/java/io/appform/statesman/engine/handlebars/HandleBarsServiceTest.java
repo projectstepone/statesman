@@ -950,24 +950,24 @@ public class HandleBarsServiceTest {
     public void testIsDigits() {
 
         val hb = new HandleBarsService();
-        final ObjectMapper mapper = Jackson.newObjectMapper();
+        val mapper = Jackson.newObjectMapper();
 
-        final String numberTransformed = hb
+        val numberTransformed = hb
             .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
                 mapper.createObjectNode().set("body", new TextNode("10")));
         Assert.assertEquals("10", numberTransformed);
 
-        final String decimalTransformed = hb
+        val decimalTransformed = hb
             .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
                 mapper.createObjectNode().set("body", new TextNode("10.0")));
         Assert.assertEquals("", decimalTransformed);
 
-        final String negativeTransformed = hb
+        val negativeTransformed = hb
             .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
                 mapper.createObjectNode().set("body", new TextNode("-10")));
         Assert.assertEquals("", negativeTransformed);
 
-        final String textTransformed = hb
+        val textTransformed = hb
             .transform("{{#if (isDigits body)}}{{body}}{{/if}}",
                 mapper.createObjectNode().set("body", new TextNode("Hi")));
         Assert.assertEquals("", textTransformed);
@@ -977,16 +977,16 @@ public class HandleBarsServiceTest {
     public void testValueFromJsonString() {
 
         val hb = new HandleBarsService();
-        final ObjectMapper mapper = Jackson.newObjectMapper();
+        val mapper = Jackson.newObjectMapper();
 
-        final JsonNode node = mapper.createObjectNode()
+        val node = mapper.createObjectNode()
             .set("message", mapper.createArrayNode().add(TextNode.valueOf(
                 "[{\"from\":\"919988776655\",\"id\":\"893649f5-9cf9-4422-87d1-a9c4258045e7\",\"timestamp\":\"1620140858\",\"type\":\"text\",\"text\":{\"body\":\"Test\"},\"profile\":{\"name\":\"Tester User\"},\"wa_number\":\"919745697456\"}]")));
 
-        final String transformed = hb.transform("{{valueFromJsonString message/0 pointer='/0/id'}}", node);
+        val transformed = hb.transform("{{valueFromJsonString message/0 pointer='/0/id'}}", node);
         Assert.assertEquals("893649f5-9cf9-4422-87d1-a9c4258045e7", transformed);
 
-        final String incorrectPointer = hb.transform("{{valueFromJsonString message/0 pointer='/1/id'}}", node);
+        val incorrectPointer = hb.transform("{{valueFromJsonString message/0 pointer='/1/id'}}", node);
         Assert.assertEquals("", incorrectPointer);
     }
 }
