@@ -247,14 +247,13 @@ public class IngressHandler {
             wfp.saveWorkflow(workflow);
 
         } else {
-            val wfTemplateOptional = wfp.getTemplate(workflow.getTemplateId());
-            if (!wfTemplateOptional.isPresent()) {
+            wfTemplate = wfp.getTemplate(workflow.getTemplateId()).orElse(null);
+            if (wfTemplate == null) {
                 log.warn("No matching workflow template found for provider: {}, context: {}", messageProvider, mapper.writeValueAsString(update));
                 ingressCallbackEvent.setErrorMessage(WORKFLOW_TEMPLATE_NOT_FOUND);
                 eventBus.get().publish(ingressCallbackEvent);
                 return false;
             }
-            wfTemplate = wfTemplateOptional.get();
         }
 
         val dataUpdate = new DataUpdate(wfId, update, new MergeDataAction());
