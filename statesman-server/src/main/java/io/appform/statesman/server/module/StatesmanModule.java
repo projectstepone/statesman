@@ -5,10 +5,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
-import io.appform.statesman.engine.ActionTemplateStore;
-import io.appform.statesman.engine.ProviderSelector;
-import io.appform.statesman.engine.TransitionStore;
-import io.appform.statesman.engine.WorkflowProvider;
+import io.appform.statesman.engine.*;
 import io.appform.statesman.engine.action.ActionExecutor;
 import io.appform.statesman.engine.action.ActionExecutorImpl;
 import io.appform.statesman.engine.action.ActionRegistry;
@@ -30,6 +27,9 @@ import io.appform.statesman.server.AppConfig;
 import io.appform.statesman.server.dao.action.ActionTemplateStoreCommand;
 import io.appform.statesman.server.dao.callback.CallbackTemplateProvider;
 import io.appform.statesman.server.dao.callback.CallbackTemplateProviderCommand;
+import io.appform.statesman.server.dao.message.IMessageConstructor;
+import io.appform.statesman.server.dao.message.MessageConfigStoreCommand;
+import io.appform.statesman.server.dao.message.MessageConstructor;
 import io.appform.statesman.server.dao.transition.TransitionStoreCommand;
 import io.appform.statesman.server.dao.workflow.WorkflowProviderCommand;
 import io.appform.statesman.server.droppedcalldetector.DroppedCallDetector;
@@ -46,6 +46,7 @@ public class StatesmanModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(ActionTemplateStore.class).to(ActionTemplateStoreCommand.class);
+        bind(MessageConfigStore.class).to(MessageConfigStoreCommand.class);
         bind(TransitionStore.class).to(TransitionStoreCommand.class);
         bind(WorkflowProvider.class).to(WorkflowProviderCommand.class);
         bind(CallbackTemplateProvider.class).to(CallbackTemplateProviderCommand.class);
@@ -58,6 +59,7 @@ public class StatesmanModule extends AbstractModule {
                 .annotatedWith(Names.named("foxtrotEventSender"))
                 .to(FoxtrotEventSender.class);
         bind(IdExtractor.class).to(CompoundIdExtractor.class);
+        bind(IMessageConstructor.class).to(MessageConstructor.class);
     }
 
     @Singleton

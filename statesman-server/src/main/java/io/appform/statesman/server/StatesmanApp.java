@@ -10,6 +10,7 @@ import com.google.inject.Stage;
 import io.appform.dropwizard.sharding.DBShardingBundle;
 import io.appform.dropwizard.sharding.config.ShardedHibernateFactory;
 import io.appform.functionmetrics.FunctionMetricsManager;
+import io.appform.functionmetrics.Options;
 import io.appform.statesman.server.exception.GenericExceptionMapper;
 import io.appform.statesman.server.module.DBModule;
 import io.appform.statesman.server.module.StatesmanModule;
@@ -31,7 +32,7 @@ public class StatesmanApp extends Application<AppConfig> {
     public void initialize(Bootstrap<AppConfig> bootstrap) {
         bootstrap.setConfigurationSourceProvider(
                 new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
-                        new EnvironmentVariableSubstitutor(false)));
+                                               new EnvironmentVariableSubstitutor(false)));
         final ObjectMapper mapper = bootstrap.getObjectMapper();
         setMapperProperties(mapper);
         MapperUtils.initialize(mapper);
@@ -44,7 +45,10 @@ public class StatesmanApp extends Application<AppConfig> {
 
     @Override
     public void run(AppConfig appConfig, Environment environment) {
-        FunctionMetricsManager.initialize("commands", environment.metrics());
+        FunctionMetricsManager.initialize("commands", environment.metrics(),
+                                          new Options.OptionsBuilder()
+                                                  .enableParameterCapture(true)
+                                                  .build());
         environment.jersey().register(GenericExceptionMapper.class);
     }
 
