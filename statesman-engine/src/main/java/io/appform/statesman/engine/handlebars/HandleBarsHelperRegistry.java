@@ -104,7 +104,7 @@ public class HandleBarsHelperRegistry {
         registerTrimDecimalPoints();
         registerTrimDecimalPointsPtr();
         registerIsDigits();
-        registerNonDigits();
+        registerValueFromJsonString();
     }
 
     private Object compareGte(int lhs) {
@@ -1096,9 +1096,24 @@ public class HandleBarsHelperRegistry {
             (String str, Options options) -> NumberUtils.isDigits(str));
     }
 
-    private void registerNonDigits() {
-        handlebars.registerHelper("nonDigits",
-            (String str, Options options) -> !NumberUtils.isDigits(str));
+    private void registerValueFromJsonString() {
+        handlebars.registerHelper("valueFromJsonString", (String jsonString, Options options) -> {
+            try {
+                val pointer = (String) options.hash(POINTER);
+                if (!Strings.isNullOrEmpty(pointer) && !Strings.isNullOrEmpty(jsonString)) {
+                    val node = MAPPER.readTree(jsonString);
+                    val valueNode = node.at(pointer);
+                    if (Objects.isNull(valueNode) || valueNode.isNull()) {
+                        return "";
+                    } else {
+                        return valueNode.asText();
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Exception occurred while removing decimal points", e);
+            }
+            return "";
+        });
     }
 
     private int extractOptionValue(JsonNode keyNode, int defaultValue) {

@@ -1,10 +1,8 @@
 package io.appform.statesman.server.ingress;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.jknack.handlebars.JsonNodeValueResolver;
@@ -21,7 +19,6 @@ import io.appform.statesman.engine.observer.events.IngressCallbackEvent;
 import io.appform.statesman.engine.observer.events.StateTransitionEvent;
 import io.appform.statesman.engine.utils.StringUtils;
 import io.appform.statesman.model.AppliedTransitions;
-import io.appform.statesman.model.Constants;
 import io.appform.statesman.model.DataObject;
 import io.appform.statesman.model.DataUpdate;
 import io.appform.statesman.model.Workflow;
@@ -43,6 +40,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MultivaluedMap;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -183,10 +181,9 @@ public class IngressHandler {
 
         val queryParams = parseQueryParams(ingressCallback);
         val node = mapper.valueToTree(queryParams);
-        providerSpecificTranslation(node, messageProvider);
         log.info("Processing node: {}", node);
 
-        String tmplLookupKey = messageProvider + "_message";
+        val tmplLookupKey = messageProvider + "_message";
         val transformationTemplate = getIngressTransformationTemplate(tmplLookupKey);
 
         val ingressCallbackEvent = IngressCallbackEvent.builder()
@@ -212,52 +209,46 @@ public class IngressHandler {
             return false;
         }
 
-        String wfId;
+        var wfId = "";
         try {
             wfId = extractWorkflowId(node, transformationTemplate);
-        }
-        catch (IllegalStateException e) {
-            log.debug("Got illegal state exception. Mostly fql failure context: "+mapper.writeValueAsString(update), e);
+        } catch (IllegalStateException e) {
+            log.debug("Got illegal state exception. Mostly fql failure context: " + mapper.writeValueAsString(update), e);
             ingressCallbackEvent.setErrorMessage(FQL_ERROR);
             eventBus.get().publish(ingressCallbackEvent);
             return false;
+        } catch (NotFoundException e) {
+            log.debug("No records founds in FoxTrot");
+            wfId = UUID.randomUUID().toString();
         }
 
         val wfp = this.workflowProvider.get();
-        Workflow workflow = wfp.getWorkflow(wfId)
+        var workflow = wfp.getWorkflow(wfId)
             .orElse(null);
-
         WorkflowTemplate wfTemplate;
 
         if(workflow == null || workflow.getDataObject().getCurrentState().isTerminal()) {
 
-            if ( "covidhelp".equalsIgnoreCase(update.get(Constants.MESSAGE).asText())) {
+            wfTemplate = templateSelector.get()
+                .determineTemplate(update)
+                .orElse(null);
 
-                ((ObjectNode)update).put("flowType", "auto_triage");
-
-                wfTemplate = templateSelector.get()
-                    .determineTemplate(update)
-                    .orElse(null);
-
-                if (null == wfTemplate) {
-                    log.warn("No matching workflow template found for provider: {}, context: {}", messageProvider, mapper.writeValueAsString(update));
-                    ingressCallbackEvent.setErrorMessage(WORKFLOW_TEMPLATE_NOT_FOUND);
-                    eventBus.get().publish(ingressCallbackEvent);
-                    return false;
-                }
-
-                val date = new Date();
-                val dataObject = new DataObject(mapper.createObjectNode(), wfTemplate.getStartState(), date, date);
-
-                while (wfp.workflowExists(wfId)) {
-                    wfId = UUID.randomUUID().toString();
-                }
-                workflow = new Workflow(wfId, wfTemplate.getId(), dataObject, new Date(), new Date());
-                wfp.saveWorkflow(workflow);
-            } else {
-                actionExecutor.get().execute("WHATSAPP_HELPLINE_DEFAULT_RESPONSE", getWorkflowWithMobileNumber(update.get("mobile_number").asText()));
-                return true;
+            if (null == wfTemplate) {
+                log.warn("No matching workflow template found for provider: {}, context: {}", messageProvider, mapper.writeValueAsString(update));
+                ingressCallbackEvent.setErrorMessage(WORKFLOW_TEMPLATE_NOT_FOUND);
+                eventBus.get().publish(ingressCallbackEvent);
+                return false;
             }
+
+            val date = new Date();
+            val dataObject = new DataObject(mapper.createObjectNode(), wfTemplate.getStartState(), date, date);
+
+            while (wfp.workflowExists(wfId)) {
+                wfId = UUID.randomUUID().toString();
+            }
+            workflow = new Workflow(wfId, wfTemplate.getId(), dataObject, new Date(), new Date());
+            wfp.saveWorkflow(workflow);
+
         } else {
             val wfTemplateOptional = wfp.getTemplate(workflow.getTemplateId());
             if (!wfTemplateOptional.isPresent()) {
@@ -269,10 +260,10 @@ public class IngressHandler {
             wfTemplate = wfTemplateOptional.get();
         }
 
-        final DataUpdate dataUpdate = new DataUpdate(wfId, update, new MergeDataAction());
+        val dataUpdate = new DataUpdate(wfId, update, new MergeDataAction());
         eventBus.get().publish(new StateTransitionEvent(wfTemplate, workflow, dataUpdate, null, null));
 
-        final AppliedTransitions appliedTransitions = engine.get().handle(dataUpdate);
+        val appliedTransitions = engine.get().handle(dataUpdate);
         log.debug("Workflow: {} with template: {} went through transitions: {}",
             wfId, wfTemplate.getId(), appliedTransitions.getTransitions());
 
@@ -281,25 +272,6 @@ public class IngressHandler {
         eventBus.get().publish(ingressCallbackEvent);
 
         return true;
-    }
-
-    private Workflow getWorkflowWithMobileNumber(String mobileNumber) {
-        return Workflow.builder()
-            .dataObject(
-                DataObject.builder()
-                    .data(mapper.createObjectNode()
-                    .set("mobile_number", TextNode.valueOf(mobileNumber))
-                ).build()
-            ).build();
-    }
-
-    private void providerSpecificTranslation(JsonNode node, String messageProvider) throws JsonProcessingException {
-        if ("whatsapp".equalsIgnoreCase(messageProvider)) {
-            final JsonNode messageNode = mapper
-                .readTree(node.get(Constants.MESSAGE).get(0).asText())
-                .get(0);
-            ((ObjectNode) node).set(Constants.MESSAGE, messageNode);
-        }
     }
 
     public boolean invokeEngineForMultiStep(String ivrProvider, IngressCallback ingressCallback) throws IOException {
