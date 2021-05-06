@@ -989,4 +989,29 @@ public class HandleBarsServiceTest {
         val incorrectPointer = hb.transform("{{valueFromJsonString message/0 pointer='/1/id'}}", node);
         Assert.assertEquals("", incorrectPointer);
     }
+
+    @Test
+    public void testStringEqualsIgnoreCase() {
+
+        val hb = new HandleBarsService();
+        val mapper = Jackson.newObjectMapper();
+
+        val expectedMatch = "matched";
+        val expectedMisMatch = "mismatch";
+
+        val exactMatch = hb
+            .transform("{{#if (streqi message 'covidhelp')}}matched{{else}}mismatch{{/if}}",
+                mapper.createObjectNode().set("message", TextNode.valueOf("covidhelp")));
+        Assert.assertEquals(expectedMatch, exactMatch);
+
+        val IgnoreCaseMatch = hb
+            .transform("{{#if (streqi message 'covidhelp')}}matched{{else}}mismatch{{/if}}",
+                mapper.createObjectNode().set("message", TextNode.valueOf("CovidHelp")));
+        Assert.assertEquals(expectedMatch, IgnoreCaseMatch);
+
+        val noMatch = hb
+            .transform("{{#if (streqi message 'covidhelp')}}matched{{else}}mismatch{{/if}}",
+                mapper.createObjectNode().set("message", TextNode.valueOf("Help")));
+        Assert.assertEquals(expectedMisMatch, noMatch);
+    }
 }

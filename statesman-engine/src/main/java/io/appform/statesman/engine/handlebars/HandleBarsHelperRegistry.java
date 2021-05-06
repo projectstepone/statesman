@@ -69,6 +69,7 @@ public class HandleBarsHelperRegistry {
         registerDateFormat();
         registerToEpoch();
         registerStreq();
+        registerStreqIgnoreCase();
         registerStrNormalize();
         registerStrSingleLineText();
         registerStrNormalizeUpper();
@@ -317,6 +318,15 @@ public class HandleBarsHelperRegistry {
     private void registerStreq() {
         handlebars.registerHelper("streq", (String value, Options options) -> {
             if (!Strings.isNullOrEmpty(value) && value.equals(options.param(0))) {
+                return "true";
+            }
+            return null;
+        });
+    }
+
+    private void registerStreqIgnoreCase() {
+        handlebars.registerHelper("streqi", (String value, Options options) -> {
+            if (!Strings.isNullOrEmpty(value) && value.equalsIgnoreCase(options.param(0))) {
                 return "true";
             }
             return null;
