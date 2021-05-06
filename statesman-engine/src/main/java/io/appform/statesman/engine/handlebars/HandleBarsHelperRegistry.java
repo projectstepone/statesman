@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
@@ -106,6 +107,7 @@ public class HandleBarsHelperRegistry {
         registerTrimDecimalPointsPtr();
         registerIsDigits();
         registerValueFromJsonString();
+        registerSanitizeJson();
     }
 
     private Object compareGte(int lhs) {
@@ -1123,6 +1125,17 @@ public class HandleBarsHelperRegistry {
                 log.error("Exception occurred while removing decimal points", e);
             }
             return "";
+        });
+    }
+
+    private void registerSanitizeJson() {
+        handlebars.registerHelper("sanitizeJson", (String str, Options options) -> {
+            if (Strings.isNullOrEmpty(str)) {
+                return "";
+            } else {
+                val text = TextNode.valueOf(str).toString();
+                return text.substring(1, text.length() - 1);
+            }
         });
     }
 

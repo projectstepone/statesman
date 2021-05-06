@@ -1014,4 +1014,29 @@ public class HandleBarsServiceTest {
                 mapper.createObjectNode().set("message", TextNode.valueOf("Help")));
         Assert.assertEquals(expectedMisMatch, noMatch);
     }
+
+    @Test
+    public void testSanitizeJson() {
+
+        val hb = new HandleBarsService();
+        val mapper = Jackson.newObjectMapper();
+
+        val newLineTransform = hb.transform("{{sanitizeJson body/0}}",
+            mapper.createObjectNode().set("body",
+                mapper.createArrayNode().add("\n\n\n")));
+        val expected = "\\n\\n\\n";
+        Assert.assertEquals(expected, newLineTransform);
+
+        val backSlashTransformation = hb.transform("{{sanitizeJson body/0}}",
+            mapper.createObjectNode().set("body",
+                mapper.createArrayNode().add("\\\\\\")));
+        val expectedBackSlash = "\\\\\\\\\\\\";
+        Assert.assertEquals(expectedBackSlash, backSlashTransformation);
+
+        val tabTransform = hb.transform("{{sanitizeJson body/0}}",
+            mapper.createObjectNode().set("body",
+                mapper.createArrayNode().add("\t")));
+        val expectedTab = "\\t";
+        Assert.assertEquals(expectedTab, tabTransform);
+    }
 }
