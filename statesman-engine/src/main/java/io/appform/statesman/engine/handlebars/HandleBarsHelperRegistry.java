@@ -1133,8 +1133,7 @@ public class HandleBarsHelperRegistry {
             if (Strings.isNullOrEmpty(str)) {
                 return "";
             } else {
-                val text = TextNode.valueOf(str).toString();
-                return text.substring(1, text.length() - 1);
+                return TextNode.valueOf(str).toString();
             }
         });
     }

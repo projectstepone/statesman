@@ -1016,27 +1016,23 @@ public class HandleBarsServiceTest {
     }
 
     @Test
+    @SneakyThrows
     public void testSanitizeJson() {
 
         val hb = new HandleBarsService();
         val mapper = Jackson.newObjectMapper();
 
-        val newLineTransform = hb.transform("{{sanitizeJson body/0}}",
-            mapper.createObjectNode().set("body",
-                mapper.createArrayNode().add("\n\"\n\n")));
-        val expected = "\\n\\n\\n";
-        Assert.assertEquals(expected, newLineTransform);
+        val actualBody = "\n\t\"\\'& \r";
 
-        val backSlashTransformation = hb.transform("{{sanitizeJson body/0}}",
+        val specialCharsTransformation = hb.transform("{ \"body\" : {{{sanitizeJson body/0}}} }",
             mapper.createObjectNode().set("body",
-                mapper.createArrayNode().add("\\\\\\")));
-        val expectedBackSlash = "\\\\\\\\\\\\";
-        Assert.assertEquals(expectedBackSlash, backSlashTransformation);
+                mapper.createArrayNode().add(actualBody)));
+        val expectedSpecialChars = "{ \"body\" : \"\\n\\t\\\"\\\\'& \\r\" }";
+        Assert.assertEquals(expectedSpecialChars, specialCharsTransformation);
 
-        val tabTransform = hb.transform("{{sanitizeJson body/0}}",
-            mapper.createObjectNode().set("body",
-                mapper.createArrayNode().add("\t")));
-        val expectedTab = "\\t";
-        Assert.assertEquals(expectedTab, tabTransform);
+        // Mapper should be able to load transformed string value
+        val transformedTree = mapper.readTree(specialCharsTransformation);
+        val resultBody = transformedTree.get("body").asText();
+        Assert.assertEquals(actualBody, resultBody);
     }
 }
