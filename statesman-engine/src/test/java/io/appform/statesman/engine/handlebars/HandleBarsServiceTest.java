@@ -1023,7 +1023,7 @@ public class HandleBarsServiceTest {
 
         val newLineTransform = hb.transform("{{sanitizeJson body/0}}",
             mapper.createObjectNode().set("body",
-                mapper.createArrayNode().add("\n\n\n")));
+                mapper.createArrayNode().add("\n\"\n\n")));
         val expected = "\\n\\n\\n";
         Assert.assertEquals(expected, newLineTransform);
 
