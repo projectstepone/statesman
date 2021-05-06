@@ -1014,4 +1014,25 @@ public class HandleBarsServiceTest {
                 mapper.createObjectNode().set("message", TextNode.valueOf("Help")));
         Assert.assertEquals(expectedMisMatch, noMatch);
     }
+
+    @Test
+    @SneakyThrows
+    public void testSanitizeJson() {
+
+        val hb = new HandleBarsService();
+        val mapper = Jackson.newObjectMapper();
+
+        val actualBody = "\n\t\"\\'& \r";
+
+        val specialCharsTransformation = hb.transform("{ \"body\" : {{{sanitizeJson body/0}}} }",
+            mapper.createObjectNode().set("body",
+                mapper.createArrayNode().add(actualBody)));
+        val expectedSpecialChars = "{ \"body\" : \"\\n\\t\\\"\\\\'& \\r\" }";
+        Assert.assertEquals(expectedSpecialChars, specialCharsTransformation);
+
+        // Mapper should be able to load transformed string value
+        val transformedTree = mapper.readTree(specialCharsTransformation);
+        val resultBody = transformedTree.get("body").asText();
+        Assert.assertEquals(actualBody, resultBody);
+    }
 }
