@@ -1130,8 +1130,8 @@ public class HandleBarsHelperRegistry {
 
     private void registerSanitizeJson() {
         handlebars.registerHelper("sanitizeJson", (String str, Options options) -> {
-            if (Strings.isNullOrEmpty(str)) {
-                return "";
+            if (str == null) {
+                return NullNode.getInstance().toString();
             } else {
                 return TextNode.valueOf(str).toString();
             }

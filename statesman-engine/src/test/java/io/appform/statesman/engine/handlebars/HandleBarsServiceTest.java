@@ -1034,5 +1034,17 @@ public class HandleBarsServiceTest {
         val transformedTree = mapper.readTree(specialCharsTransformation);
         val resultBody = transformedTree.get("body").asText();
         Assert.assertEquals(actualBody, resultBody);
+
+        val nullBody = hb.transform("{ \"body\" : {{{sanitizeJson body/0}}} }",
+            mapper.createObjectNode().set("body",
+                mapper.createArrayNode().add(NullNode.getInstance())));
+        val expectedNullBody = "{ \"body\" : null }";
+        Assert.assertEquals(expectedNullBody, nullBody);
+
+        val emptyBody = hb.transform("{ \"body\" : {{{sanitizeJson body/0}}} }",
+            mapper.createObjectNode().set("body",
+                mapper.createArrayNode().add(TextNode.valueOf(""))));
+        val expectedEmptyBody = "{ \"body\" : \"\" }";
+        Assert.assertEquals(expectedEmptyBody, emptyBody);
     }
 }
