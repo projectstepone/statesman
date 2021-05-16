@@ -219,6 +219,26 @@ CALLBACK_TEMPLATE = {
     "HI_KA_IVR_READY_SMS": {
         "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_KA_IVR_START')",
         "callback_payload": {"smsNotify": True}
+    },
+    "AES_BIHAR_IVR_START": {
+        "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('BIHAR_AES_IVR_START') and template_id = 'c0c11200-0630-439d-a458-9ac21fdfa2a8' ",
+        "callback_payload": {"callTrigger": True}
+    },
+    "AES_BIHAR_IVR_ATTEMPT_1": {
+         "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('AES_BIHAR_IVR_ATTEMPT_1') and template_id = 'c0c11200-0630-439d-a458-9ac21fdfa2a8' ",
+         "callback_payload": {"retryCallAttempt2": True}
+    },
+    "AES_BIHAR_IVR_ATTEMPT_2": {
+          "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('AES_BIHAR_IVR_ATTEMPT_2') and template_id = 'c0c11200-0630-439d-a458-9ac21fdfa2a8' ",
+          "callback_payload": {"retryCallAttempt3": True}
+    },
+    "AES_BIHAR_IVR_ATTEMPT_3": {
+          "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('AES_BIHAR_IVR_ATTEMPT_3') and template_id = 'c0c11200-0630-439d-a458-9ac21fdfa2a8' ",
+          "callback_payload": {"status": "noanswer"}
+    },
+    "AES_VOILATION": {
+           "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('AES_VOILATION')",
+           "callback_payload": {"dayEnd": True}
     }
 }
 
