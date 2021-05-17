@@ -221,7 +221,7 @@ CALLBACK_TEMPLATE = {
         "callback_payload": {"smsNotify": True}
     },
     "AES_BIHAR_IVR_START": {
-        "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('BIHAR_AES_IVR_START') and template_id = 'c0c11200-0630-439d-a458-9ac21fdfa2a8' ",
+        "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('AES_BIHAR_IVR_START') and template_id = 'c0c11200-0630-439d-a458-9ac21fdfa2a8' ",
         "callback_payload": {"callTrigger": True}
     },
     "AES_BIHAR_IVR_ATTEMPT_1": {
