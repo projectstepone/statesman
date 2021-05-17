@@ -17,6 +17,7 @@ rows = []
 csvFileNames = [f for f in listdir(scanpath) if isfile(join(scanpath, f))]
 jobQueue = persistqueue.UniqueAckQ('aes-monitoring')
 statesmanUrl = "http://localhost:8080"
+foxtrotUrl = "http://localhost:8082"
 date_fields = ['end_date']
 phones = set()
 stateWorkflows = {"bihar": "c0c11200-0630-439d-a458-9ac21fdfa2a8"}
@@ -57,7 +58,7 @@ def trigger_new_workflow(payload,mobileNumber,wfSource):
 
 def existing_workflow(phone,state):
     finalFql = """ select eventData.workflowId from statesman where eventData.workflowTemplateId in ('%s') and eventType = 'STATE_CHANGED' and eventData.newState in ('REPORT_AES')  and eventData.data.mobile_number = '%s' limit 1  """ % (stateWorkflows[state], str(phone))
-    r = requests.post('https://foxtrot.ps1infra.net/foxtrot/v1/fql', data=finalFql, headers = {"Accept": "application/json",'content-type': 'application/json','Authorization':'Bearer '})
+    r = requests.post(foxtrotUrl + '/foxtrot/v1/fql', data=finalFql, headers = {"Accept": "application/json",'content-type': 'application/json','Authorization':'Bearer '})
     if(r.status_code == 200):
         for row in r.json()['rows']:
             return row['eventData.workflowId']
