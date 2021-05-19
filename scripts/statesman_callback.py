@@ -239,6 +239,10 @@ CALLBACK_TEMPLATE = {
     "AES_VOILATION": {
            "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('AES_VOILATION')",
            "callback_payload": {"dayEnd": True}
+    },
+    "REPORT_AES": {
+            "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('REPORT_AES')",
+            "callback_payload": {"now": DAY_START_TIME}
     }
 }
 
