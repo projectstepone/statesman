@@ -11,6 +11,7 @@ import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.internal.lang3.math.NumberUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import io.appform.statesman.engine.utils.DateUtils;
 import io.appform.statesman.engine.utils.StringUtils;
 import io.appform.statesman.model.exception.ResponseCode;
 import io.appform.statesman.model.exception.StatesmanError;
@@ -108,6 +109,7 @@ public class HandleBarsHelperRegistry {
         registerIsDigits();
         registerValueFromJsonString();
         registerSanitizeJson();
+        registerComputeDays();
     }
 
     private Object compareGte(int lhs) {
@@ -351,6 +353,30 @@ public class HandleBarsHelperRegistry {
                 return aNumber.doubleValue() + Double.valueOf((String) option);
             }
             throw new StatesmanError(ResponseCode.OPERATION_NOT_SUPPORTED);
+        });
+    }
+
+    private void registerComputeDays() {
+        handlebars.registerHelper("computeDays", (String context, Options options) -> {
+            try {
+                if (null == options.params || options.params.length == 0) {
+                    return 0L;
+                }
+                if (null != context) {
+                    SimpleDateFormat sdf = new SimpleDateFormat(options.param(0));
+                    String timeZone =
+                            options.params.length < 2
+                                    ? DEFAULT_TIME_ZONE
+                                    : options.param(1);
+                    sdf.setTimeZone(TimeZone.getTimeZone(timeZone));
+                    val epochTimestamp = sdf.parse(context).getTime();
+                    return Math.round((System.currentTimeMillis() - epochTimestamp)/(1000 * 60 * 60 * 24));
+                }
+            }
+            catch (Exception e) {
+                log.error("Error computing days", e);
+            }
+            return 0L;
         });
     }
 
