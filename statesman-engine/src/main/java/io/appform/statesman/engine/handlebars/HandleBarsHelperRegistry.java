@@ -371,8 +371,11 @@ public class HandleBarsHelperRegistry {
                                 : options.param(1);
                 sdf.setTimeZone(TimeZone.getTimeZone(timeZone));
                 val epochTimestamp = sdf.parse(context).getTime();
-                return Math.round((System.currentTimeMillis() - epochTimestamp) / (1000 * 60 * 60 * 24));
-
+                val diff = System.currentTimeMillis() - epochTimestamp;
+                if(diff < 0) {
+                    return 0L;
+                }
+                return Math.round(diff / (1000 * 60 * 60 * 24));
             } catch (Exception e) {
                 log.error("Error computing days", e);
             }
