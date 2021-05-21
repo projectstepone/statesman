@@ -11,11 +11,14 @@ import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.internal.lang3.math.NumberUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import io.appform.statesman.engine.utils.DateUtils;
 import io.appform.statesman.engine.utils.StringUtils;
 import io.appform.statesman.model.exception.ResponseCode;
 import io.appform.statesman.model.exception.StatesmanError;
 import io.dropwizard.jackson.Jackson;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.jsoup.Jsoup;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
@@ -23,21 +26,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.jsoup.Jsoup;
 
 
 @Slf4j
@@ -356,24 +347,33 @@ public class HandleBarsHelperRegistry {
         });
     }
 
+    /*
+     * computes no. of days from the given date till the current date.
+     * {{computeDays dateNode 'dd MM yyyy'}}
+     */
     private void registerComputeDays() {
         handlebars.registerHelper("computeDays", (String context, Options options) -> {
             try {
                 if (null == options.params || options.params.length == 0) {
                     return 0L;
                 }
-                if (null != context) {
-                    SimpleDateFormat sdf = new SimpleDateFormat(options.param(0));
-                    String timeZone =
-                            options.params.length < 2
-                                    ? DEFAULT_TIME_ZONE
-                                    : options.param(1);
-                    sdf.setTimeZone(TimeZone.getTimeZone(timeZone));
-                    val epochTimestamp = sdf.parse(context).getTime();
-                    return Math.round((System.currentTimeMillis() - epochTimestamp)/(1000 * 60 * 60 * 24));
+                if (null == context || Strings.isNullOrEmpty(context)) {
+                    return 0L;
                 }
-            }
-            catch (Exception e) {
+                String dateFormat = options.param(0);
+                if(dateFormat == null || Strings.isNullOrEmpty(dateFormat)) {
+                    return 0L;
+                }
+                SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+                String timeZone =
+                        options.params.length < 2
+                                ? DEFAULT_TIME_ZONE
+                                : options.param(1);
+                sdf.setTimeZone(TimeZone.getTimeZone(timeZone));
+                val epochTimestamp = sdf.parse(context).getTime();
+                return Math.round((System.currentTimeMillis() - epochTimestamp) / (1000 * 60 * 60 * 24));
+
+            } catch (Exception e) {
                 log.error("Error computing days", e);
             }
             return 0L;
