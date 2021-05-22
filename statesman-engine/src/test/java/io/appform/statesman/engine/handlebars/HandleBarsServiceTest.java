@@ -2,19 +2,19 @@ package io.appform.statesman.engine.handlebars;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.LongNode;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.*;
 import com.github.jknack.handlebars.JsonNodeValueResolver;
 import com.google.common.base.Strings;
+import io.appform.statesman.engine.utils.DateUtils;
 import io.dropwizard.jackson.Jackson;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
@@ -1046,5 +1046,65 @@ public class HandleBarsServiceTest {
                 mapper.createArrayNode().add(TextNode.valueOf(""))));
         val expectedEmptyBody = "{ \"body\" : \"\" }";
         Assert.assertEquals(expectedEmptyBody, emptyBody);
+    }
+
+    @Test
+    public void testToComputeDays() {
+        Clock fixedTime = Clock.fixed(Instant.parse("2021-01-02T01:00:00.00Z"), ZoneId.of(DateUtils.getLocalZone()));
+        val hb = new HandleBarsService(fixedTime);
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+                .set("date", new TextNode("01 Jan, 2021"));
+
+        final String days = hb
+                .transform("{{computeDays date 'dd MMM, yyyy'}}", node);
+
+        Assert.assertEquals("1", days);
+    }
+
+    @Test
+    public void testToComputeDaysWhenDateIsAfterCurrentTime() {
+        Clock fixedTime = Clock.fixed(Instant.parse("2021-01-02T01:00:00.00Z"), ZoneId.of(DateUtils.getLocalZone()));
+        val hb = new HandleBarsService(fixedTime);
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+                .set("date", new TextNode("03 Jan, 2021"));
+
+        final String days = hb
+                .transform("{{computeDays date 'dd MMM, yyyy'}}", node);
+
+        Assert.assertEquals("0", days);
+    }
+
+    @Test
+    public void testToComputeDaysWhenDateFormatIsAbsent() {
+        Clock fixedTime = Clock.fixed(Instant.parse("2021-01-03T01:00:00.00Z"), ZoneId.of(DateUtils.getLocalZone()));
+        val hb = new HandleBarsService(fixedTime);
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+                .set("date", new TextNode("01-01-2021"));
+
+        final String days = hb
+                .transform("{{computeDays date}}", node);
+
+        Assert.assertEquals("2", days);
+    }
+
+    @Test
+    public void testToComputeDaysWithTimeZone() {
+        Clock fixedTime = Clock.fixed(Instant.parse("2021-01-03T01:00:00.00Z"), ZoneId.of(DateUtils.getLocalZone()));
+        val hb = new HandleBarsService(fixedTime);
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        val node = mapper.createObjectNode()
+                .set("date", new TextNode("01-01-2021"));
+
+        final String days = hb
+                .transform("{{computeDays date 'dd-MM-yyy' 'Europe/London'}}", node);
+
+        Assert.assertEquals("2", days);
     }
 }

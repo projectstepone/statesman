@@ -9,6 +9,10 @@ import java.time.temporal.IsoFields;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateUtils {
+    public static String getLocalZone() {
+        return "Asia/Calcutta";
+    }
+
     public static int weekOfYear() {
         ZoneId zoneId = ZoneId.of("Asia/Calcutta");
         ZonedDateTime now = ZonedDateTime.now(zoneId);
