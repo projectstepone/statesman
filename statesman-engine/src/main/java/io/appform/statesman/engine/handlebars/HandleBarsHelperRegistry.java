@@ -11,32 +11,26 @@ import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.internal.lang3.math.NumberUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import io.appform.statesman.engine.utils.DateUtils;
 import io.appform.statesman.engine.utils.StringUtils;
 import io.appform.statesman.model.exception.ResponseCode;
 import io.appform.statesman.model.exception.StatesmanError;
 import io.dropwizard.jackson.Jackson;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.jsoup.Jsoup;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.jsoup.Jsoup;
 
 
 @Slf4j
@@ -49,13 +43,15 @@ public class HandleBarsHelperRegistry {
     private static final String POINTER = "pointer";
 
     private final Handlebars handlebars;
+    private final Clock clock;
 
-    private HandleBarsHelperRegistry(Handlebars handlebars) {
+    private HandleBarsHelperRegistry(Handlebars handlebars, Clock clock) {
         this.handlebars = handlebars;
+        this.clock = clock;
     }
 
-    public static HandleBarsHelperRegistry newInstance(Handlebars handlebars) {
-        return new HandleBarsHelperRegistry(handlebars);
+    public static HandleBarsHelperRegistry newInstance(Handlebars handlebars, Clock clock) {
+        return new HandleBarsHelperRegistry(handlebars, clock);
     }
 
     public void register() {
@@ -108,6 +104,7 @@ public class HandleBarsHelperRegistry {
         registerIsDigits();
         registerValueFromJsonString();
         registerSanitizeJson();
+        registerComputeDays();
     }
 
     private Object compareGte(int lhs) {
@@ -354,6 +351,48 @@ public class HandleBarsHelperRegistry {
         });
     }
 
+    /*
+     * computes no. of days from the given date till the current date.
+     * {{computeDays dateNode 'dd MM yyyy'}}
+     */
+    private void registerComputeDays() {
+        handlebars.registerHelper("computeDays", (String context, Options options) -> {
+            if (null == context || Strings.isNullOrEmpty(context)) {
+                return 0L;
+            }
+
+            String dateFormat = "dd-MM-yyyy";
+            val length = null != options.params ? options.params.length : 0;
+            if(length > 0 && !Strings.isNullOrEmpty(options.param(0))) {
+                dateFormat = options.param(0);
+            }
+
+            String timeZone = DateUtils.getLocalZone();
+            if(length > 1 && !Strings.isNullOrEmpty(options.param(1))) {
+                timeZone = options.param(1);
+            }
+
+            long epochTimestamp = getEpochTimestamp(context, dateFormat, timeZone);
+            val currentTime = ZonedDateTime.now(clock).withZoneSameInstant(ZoneId.of(timeZone));
+            val diff = currentTime.toInstant().toEpochMilli() - epochTimestamp;
+            if (diff < 0) {
+                return 0L;
+            }
+            return Math.round(diff / 86_400_000);
+        });
+    }
+
+    private long getEpochTimestamp(String date, String dateFormat, String timeZone) {
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+        sdf.setTimeZone(TimeZone.getTimeZone(timeZone));
+        try {
+            return sdf.parse(date).getTime();
+        } catch (ParseException e) {
+            log.error("Error parsing to date: " + date, e);
+        }
+        return 0L;
+    }
+
     private void registerCountIf() {
         handlebars.registerHelper("count_if", new Helper<JsonNode>() {
             @Override
@@ -466,13 +505,11 @@ public class HandleBarsHelperRegistry {
                     return 0L;
                 }
                 if (null != context) {
-                    SimpleDateFormat sdf = new SimpleDateFormat(options.param(0));
                     String timeZone =
                             options.params.length < 2
                             ? DEFAULT_TIME_ZONE
                             : options.param(1);
-                    sdf.setTimeZone(TimeZone.getTimeZone(timeZone));
-                    return sdf.parse(context).getTime();
+                    return getEpochTimestamp(context, options.param(0), timeZone);
                 }
             }
             catch (Exception e) {
