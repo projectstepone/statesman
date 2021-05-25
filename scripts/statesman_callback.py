@@ -240,6 +240,10 @@ CALLBACK_TEMPLATE = {
            "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('AES_VOILATION')",
            "callback_payload": {"dayEnd": True}
     },
+    "REPORT_AES": {
+           "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('REPORT_AES')",
+           "callback_payload": {"now": DAY_START_TIME}
+    },
     "HI_HARYANA_IVR_START": {
         "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_HARYANA_IVR_START') and template_id = '94f340e5-76d6-416f-9e95-8b8532e3722d' ",
         "callback_payload": {"callTrigger": True}
