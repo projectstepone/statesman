@@ -7,11 +7,14 @@ import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
 import com.google.common.base.Strings;
 import com.google.inject.Singleton;
+import io.appform.statesman.engine.utils.DateUtils;
 import io.appform.statesman.model.exception.ResponseCode;
 import io.appform.statesman.model.exception.StatesmanError;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
+import java.time.Clock;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,8 +35,12 @@ public class HandleBarsService {
 
 
     public HandleBarsService() {
+        this(Clock.system(ZoneId.of(DateUtils.getLocalZone())));
+    }
+
+    public HandleBarsService(Clock clock) {
         handlebars = new Handlebars();
-        registerHelpers(handlebars);
+        registerHelpers(handlebars, clock);
         compiledTemplates = new ConcurrentHashMap<>();
     }
 
@@ -70,8 +77,8 @@ public class HandleBarsService {
         }
     }
 
-    private void registerHelpers(Handlebars handlebars) {
-        HandleBarsHelperRegistry.newInstance(handlebars).register();
+    private void registerHelpers(Handlebars handlebars, Clock clock) {
+        HandleBarsHelperRegistry.newInstance(handlebars, clock).register();
     }
 
     private synchronized void addTemplate(String template) throws Exception {

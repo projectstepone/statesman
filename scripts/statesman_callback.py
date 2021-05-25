@@ -241,8 +241,28 @@ CALLBACK_TEMPLATE = {
            "callback_payload": {"dayEnd": True}
     },
     "REPORT_AES": {
-            "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('REPORT_AES')",
-            "callback_payload": {"now": DAY_START_TIME}
+           "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('REPORT_AES')",
+           "callback_payload": {"now": DAY_START_TIME}
+    },
+    "HI_HARYANA_IVR_START": {
+        "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_HARYANA_IVR_START') and template_id = '94f340e5-76d6-416f-9e95-8b8532e3722d' ",
+        "callback_payload": {"callTrigger": True}
+    },
+    "HI_HARYANA_IVR_ATTEMPT_1": {
+        "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_HARYANA_IVR_ATTEMPT_1') and template_id = '94f340e5-76d6-416f-9e95-8b8532e3722d' ",
+        "callback_payload": {"retryCallAttempt2": True}
+    },
+    "HI_HARYANA_IVR_ATTEMPT_2": {
+        "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_HARYANA_IVR_ATTEMPT_2') and template_id = '94f340e5-76d6-416f-9e95-8b8532e3722d' ",
+        "callback_payload": {"retryCallAttempt3": True}
+    },
+    "HI_HARYANA_IVR_ATTEMPT_3": {
+        "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_HARYANA_IVR_ATTEMPT_3') and template_id = '94f340e5-76d6-416f-9e95-8b8532e3722d' ",
+        "callback_payload": {"status": "noanswer"}
+    },
+    "HI_HARYANA_IVR_READY_SMS": {
+        "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_HARYANA_IVR_START') and template_id = '94f340e5-76d6-416f-9e95-8b8532e3722d' ",
+        "callback_payload": {"smsNotify": True}
     }
 }
 
