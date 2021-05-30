@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
         @JsonSubTypes.Type(value = RoutedActionTemplate.class, name = "ROUTED"),
         @JsonSubTypes.Type(value = CompoundActionTemplate.class, name = "COMPOUND"),
         @JsonSubTypes.Type(value = TranslatorActionTemplate.class, name = "TRANSLATOR"),
+        @JsonSubTypes.Type(value = EvaluatedActionTemplate.class, name = "EVALUATED")
 })
 public abstract class ActionTemplate {
 

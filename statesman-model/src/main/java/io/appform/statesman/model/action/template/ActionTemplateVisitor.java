@@ -8,4 +8,6 @@ public interface ActionTemplateVisitor<T> {
     T visit(CompoundActionTemplate compoundActionTemplate);
 
     T visit(TranslatorActionTemplate translatorActionTemplate);
+
+    T visit(EvaluatedActionTemplate evaluatedActionTemplate);
 }

@@ -1,6 +1,7 @@
 package io.appform.statesman.engine.action;
 
 import io.appform.statesman.engine.action.impl.CompoundAction;
+import io.appform.statesman.engine.action.impl.EvaluatedAction;
 import io.appform.statesman.engine.action.impl.HttpAction;
 import io.appform.statesman.engine.action.impl.RoutedAction;
 import io.appform.statesman.engine.action.impl.TranslatorAction;
@@ -24,12 +25,14 @@ public class MapBasedActionRegistry implements ActionRegistry {
     public MapBasedActionRegistry(HttpAction httpAction,
                                   CompoundAction compoundAction,
                                   RoutedAction routedAction,
-                                  TranslatorAction translatorAction) {
+                                  TranslatorAction translatorAction,
+                                  EvaluatedAction evaluatedAction) {
         registry = new ConcurrentHashMap<>();
         register(httpAction);
         register(compoundAction);
         register(routedAction);
         register(translatorAction);
+        register(evaluatedAction);
     }
 
     @Override
