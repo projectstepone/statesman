@@ -43,7 +43,23 @@ public class Callbacks {
     public Response finalIngressCallback(
             @PathParam("ingressProvider") final String ingressProvider, final IngressCallback ingressCallback) {
         final boolean status = ingressHandler.get()
-                .invokeEngineForOneShot(ingressProvider, ingressCallback);
+                .invokeEngineForOneShot(ingressProvider, ingressCallback, true);
+        if(!status) {
+            log.warn("Ignored ingress provider {} callback: {}", ingressProvider, ingressCallback);
+        }
+        return Response.ok()
+                .entity(ImmutableMap.of("success", status))
+                .build();
+    }
+
+    @POST
+    @Path("/ingress/final/raw/{ingressProvider}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @SneakyThrows
+    public Response finalIngressCallbackPost(
+            @PathParam("ingressProvider") final String ingressProvider, final IngressCallback ingressCallback) {
+        final boolean status = ingressHandler.get()
+                .invokeEngineForOneShot(ingressProvider, ingressCallback, false);
         if(!status) {
             log.warn("Ignored ingress provider {} callback: {}", ingressProvider, ingressCallback);
         }

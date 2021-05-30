@@ -12,17 +12,12 @@ import io.appform.hope.core.exceptions.errorstrategy.InjectValueErrorHandlingStr
 import io.appform.hope.lang.HopeLangEngine;
 import io.appform.statesman.engine.StateTransitionEngine;
 import io.appform.statesman.engine.WorkflowProvider;
-import io.appform.statesman.engine.action.ActionExecutor;
 import io.appform.statesman.engine.handlebars.HandleBarsService;
 import io.appform.statesman.engine.observer.ObservableEventBus;
 import io.appform.statesman.engine.observer.events.IngressCallbackEvent;
 import io.appform.statesman.engine.observer.events.StateTransitionEvent;
 import io.appform.statesman.engine.utils.StringUtils;
-import io.appform.statesman.model.AppliedTransitions;
-import io.appform.statesman.model.DataObject;
-import io.appform.statesman.model.DataUpdate;
-import io.appform.statesman.model.Workflow;
-import io.appform.statesman.model.WorkflowTemplate;
+import io.appform.statesman.model.*;
 import io.appform.statesman.model.dataaction.impl.MergeDataAction;
 import io.appform.statesman.server.callbacktransformation.TransformationTemplate;
 import io.appform.statesman.server.callbacktransformation.TransformationTemplateVisitor;
@@ -34,19 +29,20 @@ import io.appform.statesman.server.droppedcalldetector.DroppedCallDetector;
 import io.appform.statesman.server.evaluator.WorkflowTemplateSelector;
 import io.appform.statesman.server.idextractor.IdExtractor;
 import io.appform.statesman.server.requests.IngressCallback;
-import java.io.IOException;
-import java.util.Date;
-import java.util.UUID;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.MultivaluedMap;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import lombok.var;
 import org.glassfish.jersey.internal.util.collection.ImmutableMultivaluedMap;
 import org.glassfish.jersey.uri.UriComponent;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.MultivaluedMap;
+import java.io.IOException;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  *
@@ -98,10 +94,19 @@ public class IngressHandler {
                 .build(hopeLangEngine::parse);
     }
 
-    public boolean invokeEngineForOneShot(String ivrProvider, IngressCallback ingressCallback) throws IOException {
+    public boolean invokeEngineForOneShot(
+            String ivrProvider,
+            IngressCallback ingressCallback,
+            boolean useQuery) throws IOException {
         log.debug("Processing ivr callback: {}", ingressCallback);
-        val queryParams = parseQueryParams(ingressCallback);
-        val node = mapper.valueToTree(queryParams);
+        final JsonNode node;
+        if(useQuery || ingressCallback.getBody() == null) {
+            val queryParams = parseQueryParams(ingressCallback);
+            node = mapper.valueToTree(queryParams);
+        }
+        else {
+            node = ingressCallback.getBody();
+        }
         log.info("Processing node: {}", node);
         String tmplLookupKey = templateLookupKey(ivrProvider, node);
         val ingressCallbackEvent = IngressCallbackEvent.builder()
