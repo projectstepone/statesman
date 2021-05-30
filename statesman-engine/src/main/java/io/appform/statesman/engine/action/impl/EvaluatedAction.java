@@ -77,7 +77,7 @@ public class EvaluatedAction extends BaseAction<EvaluatedActionTemplate> {
         if (selectedAction == null || selectedAction.getActions() == null) {
             log.error("No action selected for given data for template {} and workflow {}",
                     evaluatedActionTemplate, workflow);
-            throw new StatesmanError();
+            return mapper.createObjectNode();
         }
 
         return actionHelper.executeActions(selectedAction.getActions(), workflow);

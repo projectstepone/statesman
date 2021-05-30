@@ -98,14 +98,15 @@ public class EvaluatedActionTest {
         Assert.assertTrue(value.contains("ACTION_D"));
     }
 
-    @Test(expected = StatesmanError.class)
+    @Test()
     public void testEvaluatedActionWhenRuleDoesNotMatch() {
         EvaluatedActionTemplate template = getTemplateWithoutDefaultAction();
         Workflow workflow = Workflow.builder().dataObject(DataObject.builder().data(Jackson.newObjectMapper()
                 .createObjectNode()
                 .put("name", "d")).build()).build();
 
-        action.execute(template, workflow);
+        JsonNode jsonNode = action.execute(template, workflow);
+        Assert.assertEquals(0, jsonNode.size());
     }
 
     private EvaluatedActionTemplate getTemplate() {
