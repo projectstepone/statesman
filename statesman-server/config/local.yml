@@ -29,7 +29,7 @@ shards:
   shards:
     - driverClass: org.mariadb.jdbc.Driver
       user: root
-      password: password 
+      password: password
       url: jdbc:mariadb://mariadb_1/statesman_shard1?createDatabaseIfNotExist=true
       properties:
         charSet: UTF-8

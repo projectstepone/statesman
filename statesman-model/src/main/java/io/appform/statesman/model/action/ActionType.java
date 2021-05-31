@@ -5,5 +5,6 @@ public enum  ActionType {
     ROUTED,
     COMPOUND,
     TRANSLATOR,
+    EVALUATED
     ;
 }
