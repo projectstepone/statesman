@@ -220,6 +220,10 @@ CALLBACK_TEMPLATE = {
         "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_KA_IVR_START')",
         "callback_payload": {"smsNotify": True}
     },
+    "HI_KA_10TH_DAY_ESCALATION": {
+        "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('HI_KA_10TH_DAY_ESCALATION')",
+        "callback_payload": {"dayEnd": True}
+    },
     "AES_BIHAR_IVR_START": {
         "sql": "select workflow_id,current_state from workflow_instances where current_state IN ('AES_BIHAR_IVR_START') and template_id = 'c0c11200-0630-439d-a458-9ac21fdfa2a8' ",
         "callback_payload": {"callTrigger": True}
