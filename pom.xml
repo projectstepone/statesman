@@ -28,6 +28,14 @@
         <function-metrics.version>1.0.6</function-metrics.version>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>Chat service</name>
+            <url>https://maven.pkg.github.com/projectstepone/statesman</url>
+        </repository>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
