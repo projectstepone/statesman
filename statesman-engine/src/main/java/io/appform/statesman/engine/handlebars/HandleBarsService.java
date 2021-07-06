@@ -11,6 +11,7 @@ import io.appform.statesman.engine.utils.DateUtils;
 import io.appform.statesman.model.exception.ResponseCode;
 import io.appform.statesman.model.exception.StatesmanError;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Hex;
 
 import javax.annotation.Nullable;
 import java.time.Clock;
@@ -35,12 +36,12 @@ public class HandleBarsService {
 
 
     public HandleBarsService() {
-        this(Clock.system(ZoneId.of(DateUtils.getLocalZone())));
+        this(Clock.system(ZoneId.of(DateUtils.getLocalZone())), new Hex());
     }
 
-    public HandleBarsService(Clock clock) {
+    public HandleBarsService(Clock clock, Hex hex) {
         handlebars = new Handlebars();
-        registerHelpers(handlebars, clock);
+        registerHelpers(handlebars, clock, hex);
         compiledTemplates = new ConcurrentHashMap<>();
     }
 
@@ -77,8 +78,8 @@ public class HandleBarsService {
         }
     }
 
-    private void registerHelpers(Handlebars handlebars, Clock clock) {
-        HandleBarsHelperRegistry.newInstance(handlebars, clock).register();
+    private void registerHelpers(Handlebars handlebars, Clock clock, Hex hex) {
+        HandleBarsHelperRegistry.newInstance(handlebars, clock, hex).register();
     }
 
     private synchronized void addTemplate(String template) throws Exception {

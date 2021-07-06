@@ -18,10 +18,14 @@ import io.appform.statesman.model.exception.StatesmanError;
 import io.dropwizard.jackson.Jackson;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.codec.binary.Hex;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,17 +45,20 @@ public class HandleBarsHelperRegistry {
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
     private static final String EMPTY_STRING = "";
     private static final String POINTER = "pointer";
+    private static final String OUT_FILE = "~/flipkart/statesman/certificate.pdf";
 
     private final Handlebars handlebars;
     private final Clock clock;
+    private final Hex hex;
 
-    private HandleBarsHelperRegistry(Handlebars handlebars, Clock clock) {
+    private HandleBarsHelperRegistry(Handlebars handlebars, Clock clock, Hex hex) {
         this.handlebars = handlebars;
         this.clock = clock;
+        this.hex = hex;
     }
 
-    public static HandleBarsHelperRegistry newInstance(Handlebars handlebars, Clock clock) {
-        return new HandleBarsHelperRegistry(handlebars, clock);
+    public static HandleBarsHelperRegistry newInstance(Handlebars handlebars, Clock clock, Hex hex) {
+        return new HandleBarsHelperRegistry(handlebars, clock, hex);
     }
 
     public void register() {
@@ -60,6 +67,7 @@ public class HandleBarsHelperRegistry {
         registerStr();
         registerDecimalFormat();
         registerDate();
+        registerIncDate();
         registerRSub();
         registerToUpperCase();
         registerToLowerCase();
@@ -105,6 +113,7 @@ public class HandleBarsHelperRegistry {
         registerValueFromJsonString();
         registerSanitizeJson();
         registerComputeDays();
+        registerSHA256();
     }
 
     private Object compareGte(int lhs) {
@@ -557,6 +566,24 @@ public class HandleBarsHelperRegistry {
             try {
                 if (null != context) {
                     return sdf.format(new Date(context));
+                }
+            }
+            catch (Exception e) {
+                log.error("Error converting date", e);
+            }
+            return sdf.format(new Date());
+        });
+    }
+
+    private void registerIncDate() {
+        handlebars.registerHelper("incDate", (Integer context, Options options) -> {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            try {
+                if (null != context) {
+                    Calendar c = Calendar.getInstance();
+                    c.setTime(new Date()); // Using today's date
+                    c.add(Calendar.DATE, context);
+                    return sdf.format(c.getTime());
                 }
             }
             catch (Exception e) {
@@ -1162,6 +1189,23 @@ public class HandleBarsHelperRegistry {
                 log.error("Exception occurred while removing decimal points", e);
             }
             return "";
+        });
+    }
+
+    private void registerSHA256() {
+        handlebars.registerHelper("sha256",(Integer context, Options options) -> {
+            MessageDigest digest = null;
+            try {
+                if (null != context) {
+                    digest = MessageDigest.getInstance("SHA-256");
+                    byte[] hash = digest.digest(String.valueOf(context).getBytes(StandardCharsets.UTF_8));
+                    return new String(hex.encode(hash));
+                }
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+                return "0";
+            }
+            return "0";
         });
     }
 

@@ -1051,7 +1051,7 @@ public class HandleBarsServiceTest {
     @Test
     public void testToComputeDays() {
         Clock fixedTime = Clock.fixed(Instant.parse("2021-01-02T01:00:00.00Z"), ZoneId.of(DateUtils.getLocalZone()));
-        val hb = new HandleBarsService(fixedTime);
+        val hb = new HandleBarsService(fixedTime, null);
         final ObjectMapper mapper = Jackson.newObjectMapper();
 
         val node = mapper.createObjectNode()
@@ -1066,7 +1066,7 @@ public class HandleBarsServiceTest {
     @Test
     public void testToComputeDaysWhenDateIsAfterCurrentTime() {
         Clock fixedTime = Clock.fixed(Instant.parse("2021-01-02T01:00:00.00Z"), ZoneId.of(DateUtils.getLocalZone()));
-        val hb = new HandleBarsService(fixedTime);
+        val hb = new HandleBarsService(fixedTime, null);
         final ObjectMapper mapper = Jackson.newObjectMapper();
 
         val node = mapper.createObjectNode()
@@ -1081,7 +1081,7 @@ public class HandleBarsServiceTest {
     @Test
     public void testToComputeDaysWhenDateFormatIsAbsent() {
         Clock fixedTime = Clock.fixed(Instant.parse("2021-01-03T01:00:00.00Z"), ZoneId.of(DateUtils.getLocalZone()));
-        val hb = new HandleBarsService(fixedTime);
+        val hb = new HandleBarsService(fixedTime, null);
         final ObjectMapper mapper = Jackson.newObjectMapper();
 
         val node = mapper.createObjectNode()
@@ -1096,7 +1096,7 @@ public class HandleBarsServiceTest {
     @Test
     public void testToComputeDaysWithTimeZone() {
         Clock fixedTime = Clock.fixed(Instant.parse("2021-01-03T01:00:00.00Z"), ZoneId.of(DateUtils.getLocalZone()));
-        val hb = new HandleBarsService(fixedTime);
+        val hb = new HandleBarsService(fixedTime, null);
         final ObjectMapper mapper = Jackson.newObjectMapper();
 
         val node = mapper.createObjectNode()

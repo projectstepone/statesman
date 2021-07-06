@@ -110,7 +110,9 @@ public class HttpAction extends BaseAction<HttpActionTemplate> {
                 log.info("HTTP_ACTION POST Call url:{}", url);
                 val payload = actionData.getPayload();
                 Response response = client.get().post(url, payload, headers);
-                if (!response.isSuccessful()) {
+                if ((actionData.acceptableErrorCode == null
+                        || !actionData.acceptableErrorCode.contains(response.code()))
+                        && !response.isSuccessful()) {
                     log.error("unable to do post action, actionData: {} Response: {}",
                               actionData, HttpUtil.body(response));
                     throw new StatesmanError();
@@ -123,7 +125,9 @@ public class HttpAction extends BaseAction<HttpActionTemplate> {
                 log.info("HTTP_ACTION GET Call url:{}", url);
                 Response response = null;
                 response = client.get().get(url, headers);
-                if (!response.isSuccessful()) {
+                if ((actionData.acceptableErrorCode == null
+                        || !actionData.acceptableErrorCode.contains(response.code()))
+                        && !response.isSuccessful()) {
                     log.error("unable to do get action, actionData: {} Response: {}",
                             actionData, HttpUtil.body(response));
                     throw new StatesmanError();
@@ -149,6 +153,7 @@ public class HttpAction extends BaseAction<HttpActionTemplate> {
                 .url(handleBarsService.transform(actionTemplate.getUrl(), jsonNode))
                 .headers(getheaders(jsonNode, actionTemplate.getHeaders()))
                 .payload(handleBarsService.transform(actionTemplate.getPayload(), jsonNode))
+                .acceptableErrorCode(actionTemplate.getAcceptableErrorCodes())
                 .build();
     }
 
@@ -174,6 +179,7 @@ public class HttpAction extends BaseAction<HttpActionTemplate> {
         private String url;
         private String payload;
         private Map<String, String> headers;
+        private List<Integer> acceptableErrorCode;
 
     }
 
