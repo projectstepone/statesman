@@ -45,20 +45,19 @@ public class HandleBarsHelperRegistry {
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
     private static final String EMPTY_STRING = "";
     private static final String POINTER = "pointer";
-    private static final String OUT_FILE = "~/flipkart/statesman/certificate.pdf";
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    private static final Hex hex = new Hex();
 
     private final Handlebars handlebars;
     private final Clock clock;
-    private final Hex hex;
 
-    private HandleBarsHelperRegistry(Handlebars handlebars, Clock clock, Hex hex) {
+    private HandleBarsHelperRegistry(Handlebars handlebars, Clock clock) {
         this.handlebars = handlebars;
         this.clock = clock;
-        this.hex = hex;
     }
 
-    public static HandleBarsHelperRegistry newInstance(Handlebars handlebars, Clock clock, Hex hex) {
-        return new HandleBarsHelperRegistry(handlebars, clock, hex);
+    public static HandleBarsHelperRegistry newInstance(Handlebars handlebars, Clock clock) {
+        return new HandleBarsHelperRegistry(handlebars, clock);
     }
 
     public void register() {
@@ -577,19 +576,18 @@ public class HandleBarsHelperRegistry {
 
     private void registerIncDate() {
         handlebars.registerHelper("incDate", (Integer context, Options options) -> {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
             try {
                 if (null != context) {
                     Calendar c = Calendar.getInstance();
                     c.setTime(new Date()); // Using today's date
                     c.add(Calendar.DATE, context);
-                    return sdf.format(c.getTime());
+                    return SIMPLE_DATE_FORMAT.format(c.getTime());
                 }
             }
             catch (Exception e) {
                 log.error("Error converting date", e);
             }
-            return sdf.format(new Date());
+            return SIMPLE_DATE_FORMAT.format(new Date());
         });
     }
 
@@ -1193,19 +1191,17 @@ public class HandleBarsHelperRegistry {
     }
 
     private void registerSHA256() {
-        handlebars.registerHelper("sha256",(Integer context, Options options) -> {
-            MessageDigest digest = null;
+        handlebars.registerHelper("sha256",(Object context, Options options) -> {
             try {
                 if (null != context) {
-                    digest = MessageDigest.getInstance("SHA-256");
-                    byte[] hash = digest.digest(String.valueOf(context).getBytes(StandardCharsets.UTF_8));
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    byte[] hash = digest.digest(context.toString().getBytes(StandardCharsets.UTF_8));
                     return new String(hex.encode(hash));
                 }
             } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-                return "0";
+                log.error("Error computing hash for : " + context, e);
             }
-            return "0";
+            return null;
         });
     }
 

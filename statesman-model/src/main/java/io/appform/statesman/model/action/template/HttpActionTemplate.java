@@ -7,7 +7,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class HttpActionTemplate extends ActionTemplate {
@@ -30,7 +30,7 @@ public class HttpActionTemplate extends ActionTemplate {
 
     private JsonNode noopResponse;
 
-    private List<Integer> acceptableErrorCodes;
+    private Set<Integer> acceptableErrorCodes;
 
     public HttpActionTemplate() {
         super(ActionType.HTTP);
@@ -47,7 +47,7 @@ public class HttpActionTemplate extends ActionTemplate {
                               String responseTranslator,
                               boolean noop,
                               JsonNode noopResponse,
-                              List<Integer> acceptableErrorCodes) {
+                              Set<Integer> acceptableErrorCodes) {
         super(ActionType.HTTP, templateId, name, active);
         this.method = method;
         this.url = url;

@@ -36,12 +36,12 @@ public class HandleBarsService {
 
 
     public HandleBarsService() {
-        this(Clock.system(ZoneId.of(DateUtils.getLocalZone())), new Hex());
+        this(Clock.system(ZoneId.of(DateUtils.getLocalZone())));
     }
 
-    public HandleBarsService(Clock clock, Hex hex) {
+    public HandleBarsService(Clock clock) {
         handlebars = new Handlebars();
-        registerHelpers(handlebars, clock, hex);
+        registerHelpers(handlebars, clock);
         compiledTemplates = new ConcurrentHashMap<>();
     }
 
@@ -78,8 +78,8 @@ public class HandleBarsService {
         }
     }
 
-    private void registerHelpers(Handlebars handlebars, Clock clock, Hex hex) {
-        HandleBarsHelperRegistry.newInstance(handlebars, clock, hex).register();
+    private void registerHelpers(Handlebars handlebars, Clock clock) {
+        HandleBarsHelperRegistry.newInstance(handlebars, clock).register();
     }
 
     private synchronized void addTemplate(String template) throws Exception {
