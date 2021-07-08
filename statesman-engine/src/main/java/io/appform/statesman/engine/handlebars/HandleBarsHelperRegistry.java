@@ -578,14 +578,8 @@ public class HandleBarsHelperRegistry {
 
     private void registerIncDate() {
         handlebars.registerHelper("incDate", (Integer context, Options options) -> {
-            try {
-                if (Objects.nonNull(context))
-                    return SIMPLE_DATE_FORMAT.format(Date.from(Instant.now().plus(context, ChronoUnit.DAYS)).getTime());
-            }
-            catch (Exception e) {
-                log.error("Error converting date", e);
-            }
-            return SIMPLE_DATE_FORMAT.format(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)).getTime());
+            val amountToAdd = context != null ? context : 1;
+            return SIMPLE_DATE_FORMAT.format(Date.from(Instant.now().plus(amountToAdd, ChronoUnit.DAYS)).getTime());
         });
     }
 
