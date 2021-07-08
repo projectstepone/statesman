@@ -30,8 +30,10 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -577,17 +579,13 @@ public class HandleBarsHelperRegistry {
     private void registerIncDate() {
         handlebars.registerHelper("incDate", (Integer context, Options options) -> {
             try {
-                if (null != context) {
-                    Calendar c = Calendar.getInstance();
-                    c.setTime(new Date()); // Using today's date
-                    c.add(Calendar.DATE, context);
-                    return SIMPLE_DATE_FORMAT.format(c.getTime());
-                }
+                if (Objects.nonNull(context))
+                    return SIMPLE_DATE_FORMAT.format(Date.from(Instant.now().plus(context, ChronoUnit.DAYS)).getTime());
             }
             catch (Exception e) {
                 log.error("Error converting date", e);
             }
-            return SIMPLE_DATE_FORMAT.format(new Date());
+            return SIMPLE_DATE_FORMAT.format(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)).getTime());
         });
     }
 

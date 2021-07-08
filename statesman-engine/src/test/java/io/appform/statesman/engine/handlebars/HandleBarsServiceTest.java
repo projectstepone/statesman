@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Calendar;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
@@ -1115,14 +1115,14 @@ public class HandleBarsServiceTest {
         val hb = new HandleBarsService();
         val sdf = new SimpleDateFormat("dd-MM-yyyy");
         final ObjectMapper mapper = Jackson.newObjectMapper();
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
 
-        c.add(Calendar.DATE, 1);
-        Assert.assertEquals(sdf.format(c.getTime()), hb.transform("{{incDate value}}", mapper.createObjectNode().put("value", 1)));
 
-        c.add(Calendar.DATE, 0);
-        Assert.assertEquals(sdf.format(c.getTime()), hb.transform("{{incDate value}}", mapper.createObjectNode().put("value", 1)));
+        Assert.assertEquals(sdf.format(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)).getTime())
+                , hb.transform("{{incDate value}}", mapper.createObjectNode().put("value", 1)));
+
+
+        Assert.assertEquals(sdf.format(Date.from(Instant.now().plus(0, ChronoUnit.DAYS)).getTime())
+                , hb.transform("{{incDate value}}", mapper.createObjectNode().put("value", 0)));
     }
 
     @Test

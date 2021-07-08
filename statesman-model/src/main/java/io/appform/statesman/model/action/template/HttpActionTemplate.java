@@ -30,7 +30,7 @@ public class HttpActionTemplate extends ActionTemplate {
 
     private JsonNode noopResponse;
 
-    private Set<Integer> acceptableErrorCodes;
+    private Set<Integer> acceptableCodes;
 
     public HttpActionTemplate() {
         super(ActionType.HTTP);
@@ -47,7 +47,7 @@ public class HttpActionTemplate extends ActionTemplate {
                               String responseTranslator,
                               boolean noop,
                               JsonNode noopResponse,
-                              Set<Integer> acceptableErrorCodes) {
+                              Set<Integer> acceptableCodes) {
         super(ActionType.HTTP, templateId, name, active);
         this.method = method;
         this.url = url;
@@ -56,7 +56,7 @@ public class HttpActionTemplate extends ActionTemplate {
         this.responseTranslator = responseTranslator;
         this.noop = noop;
         this.noopResponse = noopResponse;
-        this.acceptableErrorCodes = acceptableErrorCodes;
+        this.acceptableCodes = acceptableCodes;
     }
 
     @Override

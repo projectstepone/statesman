@@ -107,7 +107,7 @@ public class HttpAction extends BaseAction<HttpActionTemplate> {
                 log.info("HTTP_ACTION POST Call url:{}", url);
                 val payload = actionData.getPayload();
                 Response response = client.get().post(url, payload, headers);
-                if (isNotSuccessful(response, actionData)) {
+                if (!isSuccessful(response, actionData)) {
                     log.error("unable to do post action, actionData: {} Response: {}",
                               actionData, HttpUtil.body(response));
                     throw new StatesmanError();
@@ -120,7 +120,7 @@ public class HttpAction extends BaseAction<HttpActionTemplate> {
                 log.info("HTTP_ACTION GET Call url:{}", url);
                 Response response = null;
                 response = client.get().get(url, headers);
-                if (isNotSuccessful(response, actionData)) {
+                if (!isSuccessful(response, actionData)) {
                     log.error("unable to do get action, actionData: {} Response: {}",
                             actionData, HttpUtil.body(response));
                     throw new StatesmanError();
@@ -130,10 +130,10 @@ public class HttpAction extends BaseAction<HttpActionTemplate> {
         });
     }
 
-    private boolean isNotSuccessful(Response response, HttpActionData actionData) {
-        return (actionData.getAcceptableErrorCodes() == null
-                || !actionData.getAcceptableErrorCodes().contains(response.code()))
-                && !response.isSuccessful();
+    private boolean isSuccessful(Response response, HttpActionData actionData) {
+        return (actionData.getAcceptableCodes() != null
+                && actionData.getAcceptableCodes().contains(response.code()))
+                || response.isSuccessful();
     }
 
     private JsonNode toJsonNode(String responseBodyStr) {
@@ -152,7 +152,7 @@ public class HttpAction extends BaseAction<HttpActionTemplate> {
                 .url(handleBarsService.transform(actionTemplate.getUrl(), jsonNode))
                 .headers(getheaders(jsonNode, actionTemplate.getHeaders()))
                 .payload(handleBarsService.transform(actionTemplate.getPayload(), jsonNode))
-                .acceptableErrorCodes(actionTemplate.getAcceptableErrorCodes())
+                .acceptableCodes(actionTemplate.getAcceptableCodes())
                 .build();
     }
 
@@ -178,7 +178,7 @@ public class HttpAction extends BaseAction<HttpActionTemplate> {
         private String url;
         private String payload;
         private Map<String, String> headers;
-        private Set<Integer> acceptableErrorCodes;
+        private Set<Integer> acceptableCodes;
 
     }
 
