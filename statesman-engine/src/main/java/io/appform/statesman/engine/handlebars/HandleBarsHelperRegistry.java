@@ -18,16 +18,22 @@ import io.appform.statesman.model.exception.StatesmanError;
 import io.dropwizard.jackson.Jackson;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.codec.binary.Hex;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -41,6 +47,8 @@ public class HandleBarsHelperRegistry {
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
     private static final String EMPTY_STRING = "";
     private static final String POINTER = "pointer";
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    private static final Hex hex = new Hex();
 
     private final Handlebars handlebars;
     private final Clock clock;
@@ -60,6 +68,7 @@ public class HandleBarsHelperRegistry {
         registerStr();
         registerDecimalFormat();
         registerDate();
+        registerIncDate();
         registerRSub();
         registerToUpperCase();
         registerToLowerCase();
@@ -105,6 +114,7 @@ public class HandleBarsHelperRegistry {
         registerValueFromJsonString();
         registerSanitizeJson();
         registerComputeDays();
+        registerSHA256();
     }
 
     private Object compareGte(int lhs) {
@@ -563,6 +573,19 @@ public class HandleBarsHelperRegistry {
                 log.error("Error converting date", e);
             }
             return sdf.format(new Date());
+        });
+    }
+
+    private void registerIncDate() {
+        handlebars.registerHelper("incDate", (Integer context, Options options) -> {
+            try {
+                if (Objects.nonNull(context))
+                    return SIMPLE_DATE_FORMAT.format(Date.from(Instant.now().plus(context, ChronoUnit.DAYS)).getTime());
+            }
+            catch (Exception e) {
+                log.error("Error converting date", e);
+            }
+            return SIMPLE_DATE_FORMAT.format(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)).getTime());
         });
     }
 
@@ -1162,6 +1185,21 @@ public class HandleBarsHelperRegistry {
                 log.error("Exception occurred while removing decimal points", e);
             }
             return "";
+        });
+    }
+
+    private void registerSHA256() {
+        handlebars.registerHelper("sha256",(Object context, Options options) -> {
+            try {
+                if (null != context) {
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    byte[] hash = digest.digest(context.toString().getBytes(StandardCharsets.UTF_8));
+                    return new String(hex.encode(hash));
+                }
+            } catch (NoSuchAlgorithmException e) {
+                log.error("Error computing hash for : " + context, e);
+            }
+            return null;
         });
     }
 

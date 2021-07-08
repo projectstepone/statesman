@@ -12,9 +12,11 @@ import lombok.val;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
@@ -1106,5 +1108,32 @@ public class HandleBarsServiceTest {
                 .transform("{{computeDays date 'dd-MM-yyy' 'Europe/London'}}", node);
 
         Assert.assertEquals("2", days);
+    }
+
+    @Test
+    public void testToGetDateByN() {
+        val hb = new HandleBarsService();
+        val sdf = new SimpleDateFormat("dd-MM-yyyy");
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+
+        Assert.assertEquals(sdf.format(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)).getTime())
+                , hb.transform("{{incDate value}}", mapper.createObjectNode().put("value", 1)));
+
+
+        Assert.assertEquals(sdf.format(Date.from(Instant.now().plus(0, ChronoUnit.DAYS)).getTime())
+                , hb.transform("{{incDate value}}", mapper.createObjectNode().put("value", 0)));
+    }
+
+    @Test
+    public void testToGetSHA256Hash() {
+        val hb = new HandleBarsService();
+        final ObjectMapper mapper = Jackson.newObjectMapper();
+
+        Assert.assertEquals("8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+                hb.transform("{{sha256 value}}", mapper.createObjectNode().put("value", 123456)));
+
+        Assert.assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                hb.transform("{{sha256 value}}", mapper.createObjectNode().put("value", "")));
     }
 }
