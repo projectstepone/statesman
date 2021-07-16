@@ -4,11 +4,14 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.appform.statesman.engine.ActionTemplateStore;
+import io.appform.statesman.engine.MessageConfigStore;
 import io.appform.statesman.engine.TransitionStore;
 import io.appform.statesman.engine.WorkflowProvider;
+import io.appform.statesman.model.MessageConfig;
 import io.appform.statesman.model.StateTransition;
 import io.appform.statesman.model.WorkflowTemplate;
 import io.appform.statesman.model.action.template.ActionTemplate;
+import io.appform.statesman.server.dao.message.IMessageConstructor;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -33,14 +36,20 @@ public class TemplateResource {
     private final ActionTemplateStore actionTemplateStore;
     private final TransitionStore transitionStore;
     private final WorkflowProvider workflowProvider;
+    private final MessageConfigStore messageConfigStore;
+    private final IMessageConstructor messageConstrutor;
 
     @Inject
     public TemplateResource(final ActionTemplateStore actionTemplateStore,
                             final TransitionStore transitionStore,
-                            final WorkflowProvider workflowProvider) {
+                            final WorkflowProvider workflowProvider,
+                            final MessageConfigStore messageConfigStore,
+                            final IMessageConstructor messageConstrutor) {
         this.actionTemplateStore = actionTemplateStore;
         this.transitionStore = transitionStore;
         this.workflowProvider = workflowProvider;
+        this.messageConfigStore = messageConfigStore;
+        this.messageConstrutor = messageConstrutor;
     }
 
 
@@ -219,6 +228,34 @@ public class TemplateResource {
         }
         return Response.ok()
                 .entity(actionTemplateOptional.get())
+                .build();
+    }
+
+    @POST
+    @Timed
+    @Path("/messageconfig")
+    @ApiOperation("Create Message Config")
+    public Response createMessageConfig(@Valid MessageConfig messageConfig) {
+        Optional<MessageConfig> messageConfigOptional = messageConfigStore.create(messageConfig);
+        if (!messageConfigOptional.isPresent()) {
+            return Response.serverError()
+                    .build();
+        }
+        return Response.ok()
+                .entity(messageConfigOptional.get())
+                .build();
+    }
+
+    @GET
+    @Timed
+    @Path("/messageconfig/{messageId}")
+    @ApiOperation("Get message config")
+    public Response getAllStateTransitions(@PathParam("messageId") String messageId,
+                                           @DefaultValue("default") @QueryParam("language") String language,
+                                           @DefaultValue("default") @QueryParam("state") String state) {
+
+        return Response.ok()
+                .entity(messageConstrutor.constructMessage(messageId,language,state))
                 .build();
     }
 

@@ -137,3 +137,9 @@ CREATE TABLE `workflow_templates` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_template_id` (`template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `message_config` (
+  `message_id` varchar(64) DEFAULT NULL,
+  `message_config_body` blob DEFAULT NULL,
+  PRIMARY KEY (`message_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
