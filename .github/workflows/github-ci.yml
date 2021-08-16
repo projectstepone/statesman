@@ -1,10 +1,13 @@
+name: Run Tests
 on:
     push:
-        branches-ignore:
-            - 'master'
+      branches:
+        - 'master'
     pull_request:
-        branches:
-            - 'master'
+      types: [opened, synchronize, reopened]
+    release:
+        types:
+          - created
 jobs:
     test_and_package:
         runs-on: ubuntu-latest
@@ -12,12 +15,18 @@ jobs:
         steps:
             - name: Checking out code base
               uses: actions/checkout@v2
-
-            - name: Set up JDK 1.8
+              with:
+                fetch-depth: 0
+            - name: Set up JDK 11
               uses: actions/setup-java@v1
               with:
-                java-version: 1.8
-
+                java-version: 11
+            - name: Cache Maven packages
+              uses: actions/cache@v1
+              with:
+                path: ~/.m2
+                key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+                restore-keys: ${{ runner.os }}-m2
             - name: Testing and Packaging
-              run: mvn clean test package -Dmaven.test.failure.ignore=false
+              run: mvn -B verify -Dmaven.test.failure.ignore=false
               continue-on-error: false
