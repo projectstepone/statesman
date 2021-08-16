@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-RUN apt-get clean && apt-get update && apt-get install -y --no-install-recommends software-properties-common openjdk-8-jdk ca-certificates && apt-get install -y --no-install-recommends ca-certificates-java bash curl tzdata iproute2 zip unzip wget
+RUN apt-get clean && apt-get update && apt-get install -y --no-install-recommends software-properties-common openjdk-11-jdk ca-certificates && apt-get install -y --no-install-recommends ca-certificates-java bash curl tzdata iproute2 zip unzip wget
 
 EXPOSE 8080
 EXPOSE 8081

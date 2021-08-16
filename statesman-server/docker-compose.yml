@@ -1,7 +1,9 @@
 version: '2'
 services:
    mariadb_1:
-    image: mariadb:10.0.38
+    image: mariadb:10.5
+    volumes:
+    - ./db:/docker-entrypoint-initdb.d
     ports:
     - "34407:3306"
     environment:
@@ -10,7 +12,9 @@ services:
       MYSQL_USER: suser@%
       MYSQL_PASSWORD: password
    mariadb_2:
-    image: mariadb:10.0.38
+    image: mariadb:10.5
+    volumes:
+    - ./db:/docker-entrypoint-initdb.d
     ports:
     - "35508:3306"
     environment:
@@ -22,12 +26,11 @@ services:
     container_name: statesman-server
     build: .
     ports:
-    - "8080:8080"
-    - "8081:8081"
-    - "8090:8090"
-    volumes:
-    - /var/log/statesman-server
+    - "9000:8080"
+    - "9001:8081"
+    - "9090:8090"
     environment:
+      PRESLEEP: "10"
       SHARD0_CONNECTION_STRING: jdbc:mariadb://mariadb_1/statesman_db_1?createDatabaseIfNotExist=true
       SHARD1_CONNECTION_STRING: jdbc:mariadb://mariadb_2/statesman_db_2?createDatabaseIfNotExist=true
       DB_USER: root
@@ -35,6 +38,8 @@ services:
       FOXTROT_ENDPOINT: https://localhost:17000
       FOXTROT_TOKEN: INV_TOKEN_
       JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8090
+      EVENT_INGESTION_ENDPOINT: https://ss-events.loca.lt/
+      EVENT_DISABLED: "true"
     depends_on:
       - mariadb_1
       - mariadb_2

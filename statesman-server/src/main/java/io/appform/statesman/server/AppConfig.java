@@ -1,9 +1,9 @@
 package io.appform.statesman.server;
 
 import io.appform.dropwizard.sharding.config.ShardedHibernateFactory;
+import io.appform.eventingester.client.EventPublisherConfig;
 import io.appform.statesman.model.FoxtrotClientConfig;
 import io.appform.statesman.model.HttpClientConfiguration;
-import io.appform.statesman.publisher.impl.EventPublisherConfig;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import lombok.Data;

@@ -67,8 +67,8 @@ public class StatesmanApp extends Application<AppConfig> {
         };
     }
 
-    private GuiceBundle<AppConfig> guiceBundle(DBShardingBundle<AppConfig> dbShardingBundle) {
-        return GuiceBundle.<AppConfig>builder()
+    private GuiceBundle guiceBundle(DBShardingBundle<AppConfig> dbShardingBundle) {
+        return GuiceBundle.builder()
                 .enableAutoConfig(getClass().getPackage().getName())
                 .modules(new DBModule(dbShardingBundle))
                 .modules(new StatesmanModule())

@@ -3,13 +3,13 @@ package io.appform.statesman.engine.action.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.name.Named;
+import io.appform.eventingester.client.EventPublisher;
 import io.appform.statesman.engine.action.BaseAction;
 import io.appform.statesman.engine.handlebars.HandleBarsService;
 import io.appform.statesman.model.ActionImplementation;
 import io.appform.statesman.model.Workflow;
 import io.appform.statesman.model.action.ActionType;
 import io.appform.statesman.model.action.template.TranslatorActionTemplate;
-import io.appform.statesman.publisher.EventPublisher;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 

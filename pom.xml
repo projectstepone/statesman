@@ -12,20 +12,20 @@
         <module>statesman-model</module>
         <module>statesman-engine</module>
         <module>statesman-server</module>
-        <module>statesman-publisher</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <lombok.version>1.18.12</lombok.version>
-        <dropwizard.version>1.3.20</dropwizard.version>
+        <lombok.version>1.18.20</lombok.version>
+        <dropwizard.version>2.0.24</dropwizard.version>
         <junit.version>4.13</junit.version>
         <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
         <mockito.version>1.10.19</mockito.version>
-        <guava.version>24.1.1-jre</guava.version>
+        <guava.version>30.1.1-jre</guava.version>
         <caffeine.version>2.6.2</caffeine.version>
         <function-metrics.version>1.0.6</function-metrics.version>
+        <aspectj.version>1.9.7</aspectj.version>
     </properties>
 
     <dependencyManagement>
@@ -71,8 +71,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
                     <compilerArgument>-parameters</compilerArgument>
                 </configuration>
             </plugin>
