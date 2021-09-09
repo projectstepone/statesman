@@ -13,7 +13,7 @@
 
     <properties>
         <dw-guicy.version>5.3.0</dw-guicy.version>
-        <dropwizard.swagger.version>2.0.12-1</dropwizard.swagger.version>
+        <dropwizard.swagger.version>2.0.0-1</dropwizard.swagger.version>
         <dropwizard.sharding.version>2.0.23-2</dropwizard.sharding.version>
         <mariadb.driver.version>2.2.0</mariadb.driver.version>
     </properties>
