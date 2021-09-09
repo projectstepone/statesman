@@ -3,6 +3,8 @@ package io.appform.statesman.engine.observer.observers;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.appform.eventingester.client.EventPublisher;
+import io.appform.eventingester.models.Event;
 import io.appform.statesman.engine.Constants;
 import io.appform.statesman.engine.events.EngineEventType;
 import io.appform.statesman.engine.events.FoxtrotStateTransitionEvent;
@@ -14,8 +16,6 @@ import io.appform.statesman.engine.observer.events.StateTransitionEvent;
 import io.appform.statesman.engine.observer.events.WorkflowInitEvent;
 import io.appform.statesman.model.Workflow;
 import io.appform.statesman.model.exception.StatesmanError;
-import io.appform.statesman.publisher.EventPublisher;
-import io.appform.statesman.publisher.model.Event;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Singleton;
@@ -34,7 +34,7 @@ public class FoxtrotEventSender extends ObservableEventBusSubscriber {
 
     private static final EventTranslator EVENT_TRANSLATOR = new EventTranslator();
 
-    private EventPublisher publisher;
+    private final EventPublisher publisher;
 
     @Inject
     public FoxtrotEventSender(@Named("eventPublisher") final EventPublisher publisher) {
@@ -69,7 +69,7 @@ public class FoxtrotEventSender extends ObservableEventBusSubscriber {
     private void publish(final List<Event> eventList) {
         try {
             if (null != eventList && !eventList.isEmpty()) {
-                publisher.publish(Constants.FOXTROT_REPORTING_TOPIC, eventList);
+                publisher.publish(eventList);
             }
         } catch (final Exception e) {
             log.error("unable to send event", e);

@@ -82,14 +82,13 @@ httpActionDefaultConfig:
   opTimeoutMs: 10000
 
 eventPublisherConfig:
-  httpClientConfiguration:
-    connections: 10
-    idleTimeOutSeconds: 30
-    connectTimeoutMs: 10000
-    opTimeoutMs: 10000
-  endpoint: "http://${EVENT_SERVICE_NAME}/sendBulkMsg"
-  batchSize: 50
+  server: "${EVENT_INGESTION_ENDPOINT}"
   queuePath: /tmp/statesman
+  connections: 10
+  idleTimeOutSeconds: 30
+  connectTimeoutMs: 10000
+  opTimeoutMs: 10000
+  disabled: ${EVENT_DISABLED}
 
 foxtrot:
   endpoint: ${FOXTROT_ENDPOINT}

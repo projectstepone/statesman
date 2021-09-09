@@ -31,7 +31,6 @@ import io.appform.statesman.server.idextractor.IdExtractor;
 import io.appform.statesman.server.requests.IngressCallback;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import lombok.var;
 import org.glassfish.jersey.internal.util.collection.ImmutableMultivaluedMap;
 import org.glassfish.jersey.uri.UriComponent;
 

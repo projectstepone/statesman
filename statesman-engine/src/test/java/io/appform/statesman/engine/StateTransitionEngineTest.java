@@ -11,7 +11,6 @@ import io.appform.statesman.model.dataaction.impl.MergeDataAction;
 import io.appform.statesman.model.dataaction.impl.MergeSelectedDataAction;
 import lombok.SneakyThrows;
 import lombok.val;
-import lombok.var;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

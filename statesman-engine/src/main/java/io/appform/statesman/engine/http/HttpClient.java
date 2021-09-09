@@ -1,4 +1,4 @@
-package io.appform.statesman.publisher.http;
+package io.appform.statesman.engine.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
