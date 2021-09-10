@@ -12,7 +12,7 @@
     <artifactId>statesman-engine</artifactId>
 
     <properties>
-        <hope.version>1.0.11</hope.version>
+        <hope.version>1.0.12</hope.version>
         <handlebars.version>4.1.2</handlebars.version>
         <jsoup.version>1.13.1</jsoup.version>
     </properties>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>io.appform.foxtrot.eventingester</groupId>
             <artifactId>event-ingester-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
