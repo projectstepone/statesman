@@ -50,28 +50,28 @@ public class StateTransitionEngineTest {
                                                   true,
                                                   "\"$.update.Q1\" == 3",
                                                   States.B,
-                                                  null);
+                                                  null, 0);
         StateTransition b2c = new StateTransition("T2",
                                                   StateTransition.Type.EVALUATED,
                                                   States.B.getName(),
                                                   true,
                                                   "\"$.update.Q2\" == 4",
                                                   States.C,
-                                                  null);
+                                                  null, 0);
         StateTransition c2d = new StateTransition("T3",
                                                   StateTransition.Type.EVALUATED,
                                                   States.C.getName(),
                                                   true,
                                                   "\"$.update.Q3\" == 1",
                                                   States.D,
-                                                  "TEST_ACTION");
+                                                  "TEST_ACTION", 0);
         StateTransition c2e = new StateTransition("T4",
                                                   StateTransition.Type.EVALUATED,
                                                   States.D.getName(),
                                                   true,
                                                   "\"$.update.Q3\" == 2",
                                                   States.E,
-                                                  null);
+                                                  null, 0);
     }
 
     private StateTransitionEngine engine;

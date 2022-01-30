@@ -103,6 +103,7 @@ public class StateTransitionEngine {
         val transitions = transitionStore.get()
                 .getTransitionFor(template.getId(), currentState.getName());
         Preconditions.checkNotNull(transitions);
+
         val evalNode = mapper.createObjectNode();
         evalNode.putObject("data").setAll((ObjectNode) dataObject.getData());
         evalNode.putObject("update").setAll((ObjectNode) dataUpdate.getData());
@@ -110,9 +111,11 @@ public class StateTransitionEngine {
                 .filter(stateTransition -> stateTransition.getType().equals(StateTransition.Type.EVALUATED))
                 .filter(StateTransition::isActive)
                 .filter(stateTransition -> !alreadyVisited.contains(stateTransition.getId()))
+                .sorted(Comparator.comparingInt(StateTransition::getOrder).reversed())
                 .filter(stateTransition -> hopeLangEngine.evaluate(evalCache.get(stateTransition.getRule()), evalNode))
                 .findFirst()
                 .orElse(defaultTransition(transitions, alreadyVisited));
+
         if (null == selectedTransition) {
             log.debug("No matching transition for: {} for update: {}", workflowId, dataUpdate);
             if (null != defaultAction) {

@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = HttpActionTemplate.class, name = "HTTP"),
         @JsonSubTypes.Type(value = HttpFilePipedActionTemplate.class, name = "HTTP_FILE_PIPED"),
+        @JsonSubTypes.Type(value = HttpFormActionTemplate.class, name = "HTTP_FORM"),
         @JsonSubTypes.Type(value = RoutedActionTemplate.class, name = "ROUTED"),
         @JsonSubTypes.Type(value = CompoundActionTemplate.class, name = "COMPOUND"),
         @JsonSubTypes.Type(value = TranslatorActionTemplate.class, name = "TRANSLATOR"),

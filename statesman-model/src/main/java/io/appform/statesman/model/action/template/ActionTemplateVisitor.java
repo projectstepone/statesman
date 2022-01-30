@@ -12,4 +12,6 @@ public interface ActionTemplateVisitor<T> {
     T visit(EvaluatedActionTemplate evaluatedActionTemplate);
 
     T visit(HttpFilePipedActionTemplate httpFilePipedActionTemplate);
+
+    T visit(HttpFormActionTemplate httpFormActionTemplate);
 }
