@@ -5,6 +5,7 @@ public enum  ActionType {
     ROUTED,
     COMPOUND,
     TRANSLATOR,
-    EVALUATED
+    EVALUATED,
+    HTTP_FILE_PIPED,
     ;
 }

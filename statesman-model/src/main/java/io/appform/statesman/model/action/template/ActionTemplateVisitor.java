@@ -10,4 +10,6 @@ public interface ActionTemplateVisitor<T> {
     T visit(TranslatorActionTemplate translatorActionTemplate);
 
     T visit(EvaluatedActionTemplate evaluatedActionTemplate);
+
+    T visit(HttpFilePipedActionTemplate httpFilePipedActionTemplate);
 }
