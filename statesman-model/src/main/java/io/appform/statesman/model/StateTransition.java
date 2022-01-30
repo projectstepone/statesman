@@ -32,4 +32,5 @@ public class StateTransition {
 
     String action;
 
+    int order;
 }
