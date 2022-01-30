@@ -20,6 +20,7 @@ public class MapBasedActionRegistry implements ActionRegistry {
     @Inject
     public MapBasedActionRegistry(HttpAction httpAction,
                                   HttpFilePipedAction httpFilePipedAction,
+                                  HttpFormAction httpFormAction,
                                   CompoundAction compoundAction,
                                   RoutedAction routedAction,
                                   TranslatorAction translatorAction,
@@ -27,6 +28,7 @@ public class MapBasedActionRegistry implements ActionRegistry {
         registry = new ConcurrentHashMap<>();
         register(httpAction);
         register(httpFilePipedAction);
+        register(httpFormAction);
         register(compoundAction);
         register(routedAction);
         register(translatorAction);

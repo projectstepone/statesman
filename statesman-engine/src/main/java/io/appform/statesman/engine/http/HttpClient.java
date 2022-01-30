@@ -8,6 +8,7 @@ import okhttp3.*;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author shashank.g
@@ -81,5 +82,26 @@ public class HttpClient {
         }
         val request = postBuilder.build();
         return client.newCall(request).execute();
+    }
+
+    public Response formUrlEncoded(final String url, final Map<String, String> formParams,
+        final Map<String, String> headers) throws IOException {
+
+        val httpUrl = HttpUrl.get(url);
+        val formBuilder = new FormBody.Builder();
+
+        if (Objects.nonNull(formParams) && !formParams.isEmpty()) {
+            formParams.forEach(formBuilder::addEncoded);
+        }
+
+        val postBuilder = new Request.Builder()
+            .url(httpUrl)
+            .post(formBuilder.build());
+
+        if (headers != null) {
+            headers.forEach(postBuilder::addHeader);
+        }
+
+        return client.newCall(postBuilder.build()).execute();
     }
 }
