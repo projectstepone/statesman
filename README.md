@@ -10,6 +10,8 @@ mvn clean package
 cd statesman-server/
 ```
 
+Note: Ensure Java version is 11 and JAVA_HOME environment variable is set.
+
 Change the line on Dockerfile (in the path $CODE/statesman-server/Dockerfile): 
 
 ADD config/docker.yml docker.yml
